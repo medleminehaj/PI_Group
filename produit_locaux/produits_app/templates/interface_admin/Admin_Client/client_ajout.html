@@ -1,0 +1,67 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block content %}
+<div class="app-main__inner">
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <h5 class="card-title">Formulaire d'ajout</h5>
+            <form method="post" action="{% url 'ajouter_client' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    {% if messages %}
+                {% for message in messages %}
+                    <h3>{{ message }}</h3>
+                {% endfor %}
+        {% endif %}
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Email :</label>
+                            <input type="email" name="email" placeholder="Entrez l'email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Password :</label>
+                            <input type="text" name="password" placeholder="Entrez votre password" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Nom :</label>
+                            <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Prénom :</label>
+                            <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prénom" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Numero telephone :</label>
+                            <input type="text" class="form-control" name="num_tel" pattern="^(20|22|42|41|46|48|32|36|38)\d{6}$" placeholder="Entrez le numéro de téléphone" title="Le numéro de téléphone doit commencer par 20,22,42,41,46,48,32,36 ou 38 et être suivi de 6 chiffres." required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>adresse :</label>
+                            <input type="text" id="adresse" name="adresse" placeholder="Entrez votre adresse" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>historique :</label>
+                            <input type="text" id="historique" name="historique" placeholder="Entrez votre historique de commande" class="form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                    <button class="mt-3 btn btn-primary">Ajouter</button>
+                    <a class="mt-3 btn btn-primary" href="{% url 'affiche_client' %}">Retour</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

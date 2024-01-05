@@ -1,0 +1,52 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block content %}
+    <div class="app-main__inner">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <h5 class="card-title">Formulaire d'modification</h5>
+                <form action="{% url 'modifier_commandeProduit' commande.id_commande %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <h3>{{ message }}</h3>
+                        {% endfor %}
+                    {% endif %}
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="nom">Client :</label>
+                                <select name="client" class="form-control">
+                                  {% for client in clients %}
+                                    <option value="{{client.id_client}}">{{client.nom}}</option>
+                                   {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="nom">Statut Commande :</label>
+                                <select name="statut" class="form-control">
+                                    <option value="Livré">Livré</option>
+                                    <option value="En cours de traitement ">En cours de traitement </option>
+                                </select>
+                            </div>
+                        </div>    
+                        <div class="col-md-12">
+                                <div class="position-relative form-group">
+                                    <label for="produits">Produits :</label>
+                                    <select id="produits" name="produits" class="form-control" multiple>
+                                        <!-- Ajoutez les options nécessaires ici -->
+                                    </select>
+                                </div>
+                            </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <button class="mt-3 btn btn-primary">Modifier</button>
+                        <td colspan="2"><a class="mt-3 btn btn-primary" href="{% url 'affiche_commandeProduit' %}">Retour</a></td>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

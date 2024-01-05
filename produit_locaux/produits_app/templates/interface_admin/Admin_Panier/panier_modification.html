@@ -1,0 +1,52 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block content %}
+    <div class="app-main__inner">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <h5 class="card-title">Formulaire d'ajout</h5>
+                <form action="{% url 'modifier_panier' panier.id_panier %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <h3>{{ message }}</h3>
+                        {% endfor %}
+                    {% endif %}
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label>client :</label>
+                                <select name="id_client" class="form-control">
+                                  {% for client in clients %}
+                                    <option value="{{client.id_client}}" {% if panier.id_client.nom == client.nom %} selected {% endif %}>{{client.nom}}</option>
+                                   {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label>produits :</label>
+                                <select name="id_produit" class="form-control" multiple>
+                                  {% for produit in produits %}
+                                    <option value="{{produit.id_produit}}" {% if produit in panier.produits.all %} selected {% endif %} >{{produit.nom}}</option>
+                                   {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label>quantite :</label>
+                                <input type="number" name="quantite" placeholder="Entrez la quantite" class="form-control" value="{{panier.quantite}}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between">
+                        <button class="mt-3 btn btn-primary">Modifier</button>
+                        <td colspan="2"><a class="mt-3 btn btn-primary" href="{% url 'affiche_panier' %}">Retour</a></td>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

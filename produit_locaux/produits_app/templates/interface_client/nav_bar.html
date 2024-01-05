@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>SUPNUM - Ecommerce Template | Home</title>
+    <link rel="icon" href="{% static 'images/logo_supnum.png' %}">
+    <link rel="stylesheet" href="{% static 'css/interface_client/core-style_m.css' %}">
+    <link rel="stylesheet" href="{% static 'css/interface_client/ms.css' %}">
+
+</head>
+
+<body>
+<nav class="navbar_en_haut">
+  <div class="container">
+    <a href="{% url 'index'%}" class="logo">Produits Locaux</a>
+    <ul class="nav-links">
+        <li><a href="#" class="nav-link"><i class="fa-regular fa-bell fa-2xl"></i></a></li>
+      <li class="user-account">
+        <div class="user-icon">
+            <img src="{{compte.image.url}}" alt="User Icon">
+        </div>
+        <div class="account-dropdown">
+          <ul>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Logout</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+    <div class="main-content-wrapper d-flex clearfix">
+        <header class="header-area clearfix">
+            <div class="nav-close">
+                <i class="fa fa-close" aria-hidden="true"></i>
+            </div>
+            <div class="logo">
+                <a href="{% url 'index' %}"><img src="{% static 'images/logopro.png' %}" alt=""></a>
+            </div>
+            <nav class="amado-nav">
+                <ul>
+                    <li class="{% if page_actuelle == 'index' %}active{% endif %}"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="{% if page_actuelle == 'categorie' %}active{% endif %}"><a href="{% url 'categories' %}">Categories</a></li>
+                    <li class="{% if page_actuelle == 'panier' %}active{% endif %}"><a href="{% url 'panier' %}">Panier</a></li>
+                    <li class="{% if page_actuelle == 'historique' %}active{% endif %}"><a href="{% url 'historique' %}">Historique</a></li>
+                </ul>
+            </nav>
+        </header>
+
+            {% block content %}{% endblock %}
+
+    </div>
+    <footer class="footer_area clearfix">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12 col-lg-4">
+                    <div class="single_widget_area">
+                        <div class="footer-logo mr-50">
+                            <a href="{% url 'index' %}"><img src="{% static 'images/logopro.png' %}" alt=""></a>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-12 col-lg-8">
+                    <div class="single_widget_area">
+                        <div class="footer_menu">
+                            <nav class="navbar navbar-expand-lg justify-content-end">
+                                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#footerNavContent" aria-controls="footerNavContent" aria-expanded="false" aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
+                                <div class="collapse navbar-collapse" id="footerNavContent">
+                                    <ul class="navbar-nav ml-auto">
+                                        <li class="{% if page_actuelle == 'index' %}nav-item active {% else %} nav-item {% endif %}">
+                                            <a class="nav-link" href="{% url 'index' %}">Home</a>
+                                        </li>
+                                        <li class="{% if page_actuelle == 'categorie' %}nav-item active{% else %}nav-item{% endif %}">
+                                            <a class="nav-link" href="{% url 'categories' %}">Categories</a>
+                                        </li>
+                                        <li class="{% if page_actuelle == 'panier' %}nav-item active{% else %}nav-item{% endif %}">
+                                            <a class="nav-link" href="{% url 'panier' %}">Pagnier</a>
+                                        </li>
+                                        <li class="{% if page_actuelle == 'historique' %}nav-item active{% else %}nav-item{% endif %}">
+                                            <a class="nav-link" href="{% url 'historique' %}">Historique</a>
+                                        </li>
+                                        <li class="nav-item">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/jquery/jquery-2.2.4.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <script src="{% static 'js\active.js' %}"></script>
+
+
+</body>
+
+</html>

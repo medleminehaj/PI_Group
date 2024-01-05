@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<link rel="stylesheet" href="{% static 'css/kk.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title-text">
+          <div class="title login">Signup Form</div>
+          <div class="title signup">Signup Form</div>
+        </div>
+        <div class="form-container">
+          <div class="slider-tab"></div>
+          <div class="form-inner">
+            <form action="{% url 'creercompte' %}" class="signup" method="post">
+              {% csrf_token %}
+              {% if messages %}
+                {% for message in messages %}
+                  <h3>{{ message }}</h3>
+                {% endfor %}
+              {% endif %}
+              <div class="field">
+                <input type="text" name="email" placeholder="Email Address" required>
+              </div>
+              <div class="field">
+                <input type="password" name="password" placeholder="Password" required>
+              </div>
+              <div>
+                <div class="field">
+                <select name="etat" required>
+                    <option value="" selected disabled hidden>S'inscrire en tant que : </option>
+                    <option value="client">Client</option>
+                    <option value="fournisseur">Fournisseur</option>
+                </select>
+            </div>
+            </div>
+              <div class="field btn">
+                <div class="btn-layer">
+                <input type="submit" value="Signup">
+                  </div>
+              </div>
+            </form>
+            </div>
+            </form>
+      
+          </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+{% extends 'interface_client/nav_bar.html' %}
+{% block content %}
+{% load static %}
+<style>
+    .user_name{
+    padding:18px;
+    }
+
+    .comments {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .comment {
+            margin-bottom: 15px;
+        }
+
+        .comment-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display:flex;
+        }
+
+        .comment-body {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            margin-left: 20px;
+        }
+
+        .reply {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+        .fa-star,
+        .far.fa-star {
+            color: #FFD700;
+        }
+</style>
+<div class="single-product-area section-padding-100 clearfix">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-50">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item"><a href="#">categorie : {{ produit.categorie.nom }}</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ produit.nom }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-7">
+                        <div class="single_product_thumb">
+                            <div id="product_details_slider" class="carousel slide" data-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <a class="gallery_img" href="{{ produit.image.url }}">
+                                            <img class="d-block w-100" src="{{ produit.image.url }}" alt="First slide">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="single_product_desc">
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+                                <p class="product-price">{{ produit.prix }} MRO</p>
+                                <a href="product-details.html">
+                                    <h6>{{ produit.nom }}</h6>
+                                </a>
+                                <div class="ratings star-ratings">
+                                    {% for i in "12345" %}
+                                    {% if i|add:'0' <= moyenne|add:'0' %}
+                                        {% if i == moyenne|add:'0'|slice:":1" %}
+                                            {% if moyenne != i %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="fas fa-star"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <i class="fas fa-star"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                </div>
+
+                            </div>
+
+                            <div class="short_overview my-5">
+                                <h4> description : </h4>
+                                <p>{{ produit.description }}</p>
+                            </div>
+                           <form action="{% url 'ajouter_panier_client' produit.id_produit %}" id="addToCartForm" class="cart clearfix" method="post">
+                                {% csrf_token %}
+                                <div class="cart-btn d-flex mb-50">
+                                    <p>Quantité</p>
+                                    <div class="quantity">
+                                        <input type="number" class="qty-text" id="qty" min="1" max="300" name="quantity" value="1">
+                                    </div>
+                                    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                                    <button type="button" onclick="showSweetAlert()" style="border: none;padding: 8px 30px;background-color: #fbb710;">A la panier</button>
+                                </div>
+                                <script>
+                                    function showSweetAlert() {
+                                        swal({
+                                            title: '{{ produit.description }} est ajouté dans la pagnier',
+                                            icon: 'success',
+                                        }).then(function (value) {
+                                            if (value) {
+                                                document.getElementById('addToCartForm').submit();
+                                            }
+                                        });
+                                    }
+                                </script>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h1>les commentaires : </h1>
+                    {% for commentaire in commentaires %}
+                    <div class="comments">
+                        <div class="comment">
+                            <div class="comment-header">
+                                <div class="user-icon">
+                                <img src="{{commentaire.id_client.id_email.image.url}}" alt="User Icon" class="image">
+                                </div>
+                                <div class="user_name">
+                                    <strong>{{commentaire.id_client.nom}}</strong>
+                                </div>
+                            </div>
+                            <div class="comment-body">
+                                {{commentaire.texte_commentaire}}
+                            </div>
+                            <div class="comment-body">
+                                 {% for i in "12345" %}
+                                    {% if i|add:'0' <= commentaire.evaluation|add:'0' %}
+                                        {% if i == commentaire.evaluation|add:'0'|slice:":1" %}
+                                            {% if commentaire.evaluation != i %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="fas fa-star"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <i class="fas fa-star"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div style="display:flex;">
+                        <div class="user-icon">
+                            <img src="{{compte.image.url}}" alt="User Icon">
+                        </div>
+                        <form id="commentaireForm" action="" method="POST" style="display:flex;">
+                      {% csrf_token %}
+                      <div>
+                          <input placeholder="ajouter un commentaire ..." class="input_commentaire" name="nouveau_commentaire">
+                      </div>
+                      <div class="rating" style="position:absolute;margin-left:62%;margin-top:1%;">
+                        <span class="star" data-rating="5">&#9733;</span>
+                        <span class="star" data-rating="4">&#9733;</span>
+                        <span class="star" data-rating="3">&#9733;</span>
+                        <span class="star" data-rating="2">&#9733;</span>
+                        <span class="star" data-rating="1">&#9733;</span>
+                        <input type="hidden" name="rating" id="rating-value" value="0">
+                      </div>
+                        <div style="position:absolute;margin-left:80%;margin-top:1%;">
+                      <button type="button" onclick="submitForm()" style="background-color: white;border: none"><img src="{% static 'images/352094_send_icon.png' %}" class="icon_env"></button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    function submitForm() {
+  const selectedRating = document.getElementById('rating-value').value;
+  const commentaire = document.querySelector('.input_commentaire').value;
+  const productId = "{{ produit.id_produit }}";
+
+  const form = document.getElementById('commentaireForm');
+  form.action = `/ajouter_commentaire_client/${productId}/${selectedRating}/`;
+
+  form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const stars = document.querySelectorAll('.star');
+
+  stars.forEach(function(star) {
+    star.addEventListener('click', function() {
+      const clickedRating = parseInt(star.getAttribute('data-rating'));
+      const currentValue = parseInt(document.getElementById('rating-value').value);
+
+      if (currentValue === clickedRating) {
+        document.getElementById('rating-value').value = 0;
+        stars.forEach(function(star) {
+          star.classList.remove('filled');
+        });
+      } else {
+        document.getElementById('rating-value').value = clickedRating;
+        stars.forEach(function(star) {
+          const starRating = parseInt(star.getAttribute('data-rating'));
+          if (starRating <= clickedRating) {
+            star.classList.add('filled');
+          } else {
+            star.classList.remove('filled');
+          }
+        });
+      }
+    });
+  });
+});
+
+</script>
+
+{% endblock %}
+

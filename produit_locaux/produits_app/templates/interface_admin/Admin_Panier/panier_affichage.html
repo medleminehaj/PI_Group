@@ -1,0 +1,62 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block title %}
+  Clients
+{% endblock %}
+{% block content %}
+  <div class="app-main__inner">
+    <div class="app-page-title">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="main-card mb-3 card">
+            <div class="card-body">
+              <div style="display: flex ; justify-content: space-between;">
+                <div>
+                  <h5 class="card-title">Liste des paniers </h5>
+                </div>
+                <div style="display: flex ; justify-content: space-between;">
+
+                  <div>
+                    <a href="{% url 'ajouter_panier' %}" class="mb-2 mr-2 btn btn-info"><i class="fa fa-fw" aria-hidden="true" title="Copier pour utiliser plus-square"></i> Ajouter </a>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <table class="mb-0 table" id="myTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Produit</th>
+                    <th>Quantite</th>
+                    <th>nom Client</th>
+                    <th colspan="2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for panier in paniers %}
+                  <tr>
+                    <td >{{panier.id_panier}}</td>
+                    <td>
+                    {% for p in panier.produits.all %}
+                    {{ p.nom }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                    </td>
+                    <td>{{panier.quantite}}</td>
+                    <td >{{panier.id_client.nom}}</td>
+                    <td>
+                      <a class='button' href="{% url 'modifier_panier' panier.id_panier  %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                    </td>
+                    <td>
+                      <a class='button' href="{% url 'suprimer_panier' panier.id_panier  %}"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

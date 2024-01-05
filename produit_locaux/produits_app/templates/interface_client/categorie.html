@@ -1,0 +1,108 @@
+{% extends 'interface_client/nav_bar.html' %}
+{% block content %}
+<div class="shop_sidebar_area">
+     <div class="widget catagory mb-50">
+                <h6 class="widget-title mb-30"><b class="majuscules">Catagories</b></h6>
+                 <ul>
+                    <li class="active"><a href="{% url 'categories' %}"><h6 class="majuscules">all</h6></a></li><br>
+                 </ul>
+                {% for categorie in categories %}
+                <div class="categories-menu">
+                    <ul>
+                            <li><a href="{% url 'produits_par_categorie' categorie.nom %}" ><h6 class="transparent-link majuscules">{{ categorie.nom }}</h6></a>
+                            </li>
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="amado_product_area section-padding-100">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="product-topbar d-xl-flex align-items-end justify-content-between">
+                            <div class="product-sorting d-flex">
+                                <div class="sort-by-date d-flex align-items-center mr-15">
+                                    <p>Sort by</p>
+                                    <form action="#" method="get">
+                                        <select name="select" id="sortBydate">
+                                            <option value="date">Date</option>
+                                            <option value="newest">Newest</option>
+                                            <option value="popular">Popular</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div class="view-product d-flex align-items-center">
+                                    <p>View</p>
+                                    <form action="#" method="get">
+                                        <select name="view" id="viewProduct" onchange="changeView(this.value)">
+                                                <option value="{{ quarter_1 }}" {% if view_option == quarter_1 %}selected{% endif %}>{{quarter_1}}</option>
+                                                <option value="{{ quarter_2 }}" {% if view_option == quarter_2 %}selected{% endif %}>{{quarter_2}}</option>
+                                                <option value="{{ quarter_3 }}" {% if view_option == quarter_3 %}selected{% endif %}>{{quarter_3}}</option>
+                                                <option value="{{ quarter_4 }}" {% if view_option == quarter_4 %}selected{% endif %}>{{quarter_4}}</option>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function changeView(value) {
+                        var url = window.location.href.split('?')[0];
+                        window.location.href = url + '?view=' + value;
+                    }
+                </script>
+                <style>
+                    .star-ratings {
+                        color: #ffdf00; /* Couleur des étoiles */
+                        font-size: 18px; /* Taille des étoiles */
+                    }
+
+                    .star-ratings::before {
+                        content: '\2605\2605\2605\2605\2605'; /* Trois étoiles pleines */
+                        margin-right: 5px; /* Marge entre les étoiles */
+                    }
+                    .h4{
+                        text-align: center;
+                    }
+                </style>
+                <h4 class="h4">les nouveaux produit</h4><br>
+                <div class="row">
+
+
+
+                                {% for produit in derniers_produits %}
+                                <div class="col-12 col-sm-6 col-md-12 col-xl-6">
+                                    <div class="single-product-wrapper">
+                                        <div class="product-img">
+
+                                            <a href="{% url 'details_produit' produit.id_produit %}">
+                                                <img src="{{ produit.image.url }}" alt="">
+                                            </a>
+                                        </div>
+                                        <div class="product-description d-flex align-items-center justify-content-between">
+                                            <div class="product-meta-data">
+                                               <div class="line"></div>
+                                                    <h4>{{ produit.nom }}</h4>
+                                                    <p><b>prix: </b>{{ produit.prix }} MRO</p>
+                                                    <p><b>date: </b>{{ produit.date_publication }}</p>
+
+                                            </div>
+                                        </div>
+                                        <p><b class="categorie">categorie: </b>{{ produit.categorie.nom }}</p>
+
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

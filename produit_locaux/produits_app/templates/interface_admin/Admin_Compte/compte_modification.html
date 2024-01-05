@@ -1,0 +1,57 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block content %}
+<div class="app-main__inner">
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <h5 class="card-title">Formulaire de modification</h5>
+            <form method="post" action="{% url 'modifier_compte' compte.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-row">
+                    {% if messages %}
+                {% for message in messages %}
+                    <h3>{{ message }}</h3>
+                {% endfor %}
+        {% endif %}
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Email :</label>
+                            <input type="email" name="email" placeholder="Entrez l'email" class="form-control" value="{{compte.email}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="position-relative form-group">
+                            <label>Password :</label>
+                            <input type="text" name="password" placeholder="Entrez votre password" class="form-control" value="{{compte.password}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <select name="etat" class="form-control">
+                                    <option value="admin" {% if compte.etat == 'admin' %} selected {% endif %}>admin</option>
+                                    <option value="fournisseur" {% if compte.etat == 'fournisseur' %} selected {% endif %}>fournisseur</option>
+                                    <option value="client" {% if compte.etat == 'client' %} selected {% endif %}>client</option>
+                                </select>
+                            </div>
+                        </div>
+                    <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label>Image :</label>
+                                <br>
+                                {% if compte.image.url %}
+                                    <img src="{{ compte.image.url }}" alt="Ancienne image" height="100px" width="100px">
+                                {% endif %}
+                                <br><br>
+                                <input type="file" name="image" class="mb-2 mr-2 btn btn-secondary active">
+                            </div>
+                        </div>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                    <button class="mt-3 btn btn-primary">Modifier</button>
+                    <a class="mt-3 btn btn-primary" href="{% url 'affiche_compte' %}">Retour</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

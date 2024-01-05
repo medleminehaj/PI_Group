@@ -1,0 +1,20 @@
+{% extends 'interface_client/nav_bar.html' %}
+{% block content %}
+<div class="products-catagories-area clearfix ">
+
+    <div class="amado-pro-catagory clearfix">
+
+                {% for produit in produits %}
+                <div class="single-products-catagory clearfix">
+                    <a href="{% url 'details_produit' produit.id_produit %}">
+                        <img width="100px" src="{{ produit.image.url }}" alt="">
+                        <div class="hover-content">
+                            <p>{{ produit.prix }} MRO</p>
+                            <h4>{{ produit.nom }}</h4>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+</div>
+{% endblock %}

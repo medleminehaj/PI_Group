@@ -1,0 +1,116 @@
+{% extends 'interface_client/nav_bar.html' %}
+{% block content %}
+        <div class="cart-table-area section-padding-100">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <div class="cart-title mt-50">
+                            <h2>Le panier</h2>
+                        </div>
+                        <div class="cart-table clearfix">
+                            <table class="table table-responsive">
+                                <thead style="width: 550px;">
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Nom</th>
+                                        <th>Prix</th>
+                                        <th colspan="2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in panier_items %}
+                                    <tr>
+                                        <td class="cart_product_img">
+                                            <a href="{% url 'details_produit' item.produit.id_produit %}"><img src="{{ item.produit.image.url }}" alt="Product" class="image"></a>
+                                        </td>
+                                        <td class="cart_product_desc">
+                                            <h5>{{ item.produit.nom }}</h5>
+                                        </td>
+                                        <td class="price">
+                                            <span>{{ item.produit.prix }} MRO</span>
+                                        </td>
+                                        <td class="qty">
+                                            <div class="qty-btn d-flex" style="width: 30px; height: 30px;">
+                                                <div class="quantity">
+                                                    <input type="number" class="qty-text"
+                                                        id="qty_{{ item.produit.id_produit }}" step="1" min="1" max="300"
+                                                        name="quantity" value="{{ item.quantity }}" oninput="updateTotal()">
+                                                </div>
+                                                <a href="#" onclick="confirmDelete('{{ item.produit.id_produit }}')">
+                                                    <i style="margin-left: 20px; margin-top: 20px;" class="fa-solid fa-trash fa-2xl"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                                        <script>
+                                            function confirmDelete(productId) {
+                                                swal({
+                                                    title: 'Êtes-vous sûr?',
+                                                    text: 'La suppression de cet article est irréversible!',
+                                                    icon: 'warning',
+                                                    buttons: ['Annuler', 'Supprimer'],
+                                                    dangerMode: true,
+                                                })
+                                                    .then((willDelete) => {
+                                                        if (willDelete) {
+                                                        var url = '/suprimer_panier_client/' + productId;
+                                                        window.location.href = url;
+                                                        }
+                                                    });
+                                            }
+
+                                            function confirmDeleteAll() {
+                                                swal({
+                                                    title: 'Êtes-vous sûr?',
+                                                    text: 'La suppression de tous ces articles est irréversible!',
+                                                    icon: 'warning',
+                                                    buttons: ['Annuler', 'Supprimer'],
+                                                    dangerMode: true,
+                                                })
+                                                .then((willDelete) => {
+                                                        if (willDelete) {
+                                                        var url = '/vider_panier/';
+                                                        window.location.href = url;
+                                                        }
+                                                    });
+                                            }
+                                        </script>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <div class="cart-summary">
+                            <h5>Cart Total</h5>
+                            <ul class="summary-table">
+                                <li><span>subtotal:</span> <span>140.00 MRO</span></li>
+                                <li><span>delivery:</span> <span>Free</span></li>
+                                <li><span>total:</span> <span id="totalAmount">{{ somme }} MRO</span></li>
+                            </ul>
+                            <div class="cart-btn mt-100">
+                                <a href="{% url 'paiement' %}" class="btn amado-btn w-100">paiement</a>
+                            </div>
+                            <div class="cart-btn mt-100">
+                                <a onclick="confirmDeleteAll()" href="#"
+                                    class="btn amado-btn w-100">Vider le panier</a>
+                            </div>
+                        </div>
+                        <script>
+                            function updateTotal() {
+                                var totalAmount = 0;
+                                {% for produit in produits %}
+                                var quantity = document.getElementById('qty_{{ produit.id_produit }}').value;
+                                var price = {{ produit.prix }};
+                                totalAmount += price * quantity;
+                                {% endfor %}
+                            document.getElementById('totalAmount').innerText = totalAmount.toFixed(2) +' MRO';
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

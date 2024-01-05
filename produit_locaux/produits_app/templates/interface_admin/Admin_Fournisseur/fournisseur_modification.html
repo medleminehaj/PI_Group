@@ -1,0 +1,61 @@
+{% extends 'interface_admin/navbar.html' %}
+
+{% block content %}
+    <div class="app-main__inner">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <h5 class="card-title">Formulaire d'ajout</h5>
+                <form action="{% url 'modifier_fournisseur' fournisseur.id_fournisseur  %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <h3>{{ message }}</h3>
+                        {% endfor %}
+                    {% endif %}
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="nom">Nom :</label>
+                                <input type="text" id="nom" name="nom" placeholder="Entrez le nom de l'entreprise" class="form-control" value="{{fournisseur.nom_enterprise}}" >
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="num_tel">Numéro de téléphone :</label>
+                                <input type="text" id="num_tel" name="num_tel" pattern="^(20|22|42|41|46|48|32|36|38)\d{6}$" placeholder="Entrez le numéro de téléphone" class="form-control" title="Le numéro de téléphone doit commencer par 20,22,42,41,46,48,32,36 ou 38 et être suivi de 6 chiffres." value="{{fournisseur.num_tel}}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="adresse">Adresse :</label>
+                                <input type="text" id="adresse" name="adresse" placeholder="Entrez l'adresse" class="form-control" value="{{fournisseur.adresse}}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label for="description">Description :</label>
+                                <textarea id="description" name="description" placeholder="Entrez la description" class="form-control" required>{{fournisseur.description}}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="position-relative form-group">
+                                <label>Produits :</label>
+                                (
+                                {% for p in produits %}
+                                  {% if p.id_fournisseur.id_fournisseur == fournisseur.id_fournisseur %}
+                                    {{p.nom}}{% if not forloop.last %}, {% endif %}
+                                  {% endif %}
+                                {% endfor %}
+                                )
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <button class="mt-3 btn btn-primary">Modifier</button>
+                        <td colspan="2"><a class="mt-3 btn btn-primary" href="{% url 'affiche_fournisseur' %}">Retour</a></td>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

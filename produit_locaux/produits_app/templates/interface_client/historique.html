@@ -1,0 +1,50 @@
+{% extends 'interface_client/nav_bar.html' %}
+{% block content %}
+{% load static %}
+<div class="cart-table-area section-padding-100">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <div class="cart-title mt-50">
+                            <h2>L'historique</h2>
+                        </div>
+                        <div class="cart-table clearfix">
+                            <table class="table table-responsive">
+                                <thead style="width: 550px;">
+                                    <tr>
+                                        <th>Command</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if historique %}
+                                    {% for commande in historique %}
+                                    <tr class="tr_historique">
+                                        <td><strong>Commande # {{ commande.id_commande }}</strong><br></td>
+                                        <td>{{ commande.date_commande }}<br></td>
+                                        <td>{{ commande.statut_commande }}<br></td>
+                                        <td><a href="{% url 'details_historique' commande.id_commande %}"><img src="{% static 'images/file.png' %}" alt="" class="image_details"></a><br></td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <p>Aucune commande dans l'historique.</p>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <div class="cart-summary">
+                            <h5>Cart Total</h5>
+                            <div class="cart-btn mt-100">
+                                <a href="{% url 'vider_historique' %}" class="btn amado-btn w-100">Vider L'historique</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

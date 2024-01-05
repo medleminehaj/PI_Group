@@ -203,7 +203,7 @@
                                                     reader.onload = function (e) {
                                                     // Mettre à jour la source de l'image avec la nouvelle photo
                                                     avatarImg.src = e.target.result;
-                                                    img.src=e.target.result;
+                                                    
                                                     
                                                     };
 
@@ -211,10 +211,7 @@
                                                 }
                                                 }
 
-                                                function openFileExplorer() {
-                                                // Ouvrir l'explorateur de fichiers en cliquant sur l'icône de stylo
-                                                document.getElementById('file').click();
-                                                }
+                                               
                                             </script>
                                         </div>
                                             <p>Welcome, {{ client.nom }}!</p>
@@ -228,7 +225,7 @@
                                         <div class="inputs">
                                             <!-- Additional input fields can be added here if necessary -->
                                         </div>
-                                        <button><a href="{% url 'gerer_voter_compt' %}">Gérer votre compte</a></button>
+                                        <button>Gérer votre compte</a></button>
                                     </form>
                                     <div class="form-footer">
                                         <!-- <a href="#">se deconecter</a>  -->

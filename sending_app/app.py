@@ -5,8 +5,8 @@ import random
 app = Flask(__name__)
 
 # Configuration for email sending
-EMAIL_ADDRESS = "medleminehaj@gmail.com"
-EMAIL_PASSWORD = "amre ztkp xusa zbwo"
+EMAIL_ADDRESS = "produitslocauxmauritaniens@gmail.com"
+EMAIL_PASSWORD = "bsvk zxbp fika phvs"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
@@ -46,4 +46,4 @@ def success():
         return render_template('verify.html', erreur="No this is not the correct code" )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True , port=8000)

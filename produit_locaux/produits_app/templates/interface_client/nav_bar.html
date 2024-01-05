@@ -12,30 +12,251 @@
     <link rel="icon" href="{% static 'images/logo_supnum.png' %}">
     <link rel="stylesheet" href="{% static 'css/interface_client/core-style_m.css' %}">
     <link rel="stylesheet" href="{% static 'css/interface_client/ms.css' %}">
+    <style>
+        .user-account {
+            position: relative;
+        }
+        .user-icon{
+            height: 29px;
+        }
+        
+        .user-icon img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor:default;
+}
+.user-info {
+    display: none;
+    position: absolute;
+    top: 754%;
+    right: -21px;
+    transform: translate(0, -50%);
+    width: 270px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    text-align: left;
+    z-index: 999;
+}
+        
+        .user-icon:hover + .user-info,
+        .user-info:hover {
+            display: block;
+        }
+        .container1 {
+          max-width: 300px;
+          background-color: #F1F7FE;
+          border-radius: 15px;
+          overflow-x: hidden;
+          cursor: default;
+          z-index: 1;
+        }
+        
+        .form {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding: 22px 24px 1px;
+            gap: 0px;
+            text-align: center;
+        }
+        
+        .form .head {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .form .head span {
+          font-size: 1.6rem;
+          font-weight: bolder;
+          color: black;
+        }
+        
+        .form .head p {
+          font-size: 1.1rem;
+          color: #fbf5f5;
+        }
+        
+        .form .inputs {
+          overflow: hidden;
+          background-color: #fff;
+          width: 100%;
+          margin: 1rem 0.5rem;
+          border-radius: 8px;
+          border-bottom: none;
+          outline: 0;
+        }
+        
+        .form .inputs input {
+          border: none;
+          outline: none;
+          padding: 8px 15px;
+          width: 100%;
+          height: 40px;
+          border-bottom: 1px solid rgba(128, 128, 128, 0.299);
+          font-weight: 200;
+        }
+        
+        .form button {
+          background-color: #4287ef;
+          color: white;
+          width: 100%;
+          height: 40px;
+          padding-top: 8px;
+          padding-bottom: 8px;
+          border: 0;
+          overflow: hidden;
+          border-radius: 25px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor:default;
+          transition: all 1s ease-in-out;
+        }
+        
+        .form button:hover {
+          background-color: #005ce6;
+        }
+        
+        .form-footer {
+          background-color: #e0ecfb;
+          padding: 16px;
+          font-size: 1rem;
+          text-align: center;
+        }
+        
+        .form-footer a {
+          font-weight: bolder;
+          color: #0066ff;
+          transition: all 3s ease-in-out;
+        }
+        
+        .form-footer a:hover {
+          color: #005ce6;
+        }
+        
 
+        #file {
+      display: none;
+    }
+
+    .avatar {
+      cursor: pointer;
+      display: inline-block;
+      position: relative;
+    }
+
+    .edit-icon {
+    background: transparent;
+    border-radius: 50%;
+    bottom: -7px;
+    height: 28px;
+    position: absolute;
+    right: -9px;
+    width: 24px;
+}
+    .user-icon .img_compt{
+        width: 53px;
+        height: 53px;
+    }
+    .user-icon .icon_compt {
+    width: 21px;
+    height: 25px;
+}
+        </style>
 </head>
 
 <body>
-<nav class="navbar_en_haut">
-  <div class="container">
-    <a href="{% url 'index'%}" class="logo">Produits Locaux</a>
-    <ul class="nav-links">
-        <li><a href="#" class="nav-link"><i class="fa-regular fa-bell fa-2xl"></i></a></li>
-      <li class="user-account">
-        <div class="user-icon">
-            <img src="{{compte.image.url}}" alt="User Icon">
+    <nav class="navbar_en_haut">
+        <div class="container">
+            <a href="{% url 'index'%}" class="logo">Produits Locaux</a>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link"><i class="fa-regular fa-bell fa-2xl"></i></a></li>
+                <li class="user-account">
+                    <div class="user-icon">
+                        <img src="{{compte.image.url}}" alt="User Icon" id="userImage" onclick="toggleModal()" width="40" height="40">
+                        <div class="user-info" id="userInfo">
+                            <div class="body">
+                                <div class="container1">
+                                    <form class="form">
+                                        <div class="head">
+                                            <input id="file" type="file" onchange="updateImage()">
+                                            <label class="avatar" for="file">
+                                                <span>
+                                                <img class="img_compt" id="avatar-img" src="{{compte.image.url}}" alt="vatar" width="50" height="60">
+                                                </span>
+                                                <div class="edit-icon" onclick="openFileExplorer()">
+                                                    <img class="icon_compt" src="{% static 'images/stylo.png' %}" alt="User Icon">
+                                                
+                                                </div>
+                                            </label>
+
+                                            <script>
+                                                function updateImage() {
+                                                var input = document.getElementById('file');
+                                                var avatarImg = document.getElementById('avatar-img');
+                                                var img=document.getElementById('userImage')
+                                                if (input.files && input.files[0]) {
+                                                    var reader = new FileReader();
+
+                                                    reader.onload = function (e) {
+                                                    // Mettre à jour la source de l'image avec la nouvelle photo
+                                                    avatarImg.src = e.target.result;
+                                                    img.src=e.target.result;
+                                                    
+                                                    };
+
+                                                    reader.readAsDataURL(input.files[0]);
+                                                }
+                                                }
+
+                                                function openFileExplorer() {
+                                                // Ouvrir l'explorateur de fichiers en cliquant sur l'icône de stylo
+                                                document.getElementById('file').click();
+                                                }
+                                            </script>
+                                        </div>
+                                            <p>Welcome, {{ client.nom }}!</p>
+                                            <p>Numéro de téléphone: {{ client.num_tel }}</p>
+                                        <p>Adresse: {{ client.adresse }}</p>
+                                        <p>État: {{ compte.etat }}</p>
+                                            <!-- Display additional information from client as needed -->
+                                        
+                                        
+                                        <!-- Add other fields as needed -->
+                                        <div class="inputs">
+                                            <!-- Additional input fields can be added here if necessary -->
+                                        </div>
+                                        <button><a href="{% url 'gerer_voter_compt' %}">Gérer votre compte</a></button>
+                                    </form>
+                                    <div class="form-footer">
+                                        <!-- <a href="#">se deconecter</a>  -->
+                                    </div>
+                            
+                                </div>
+                        
+                            </div>
+                            
+                            <!-- Add more user information as needed -->
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div>
-        <div class="account-dropdown">
-          <ul>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Logout</a></li>
-          </ul>
-        </div>
-      </li>
-    </ul>
-  </div>
-</nav>
+    </nav>
+    <script>
+        function toggleModal() {
+            var userInfo = document.getElementById('userInfo');
+            userInfo.style.display = (userInfo.style.display === 'block' ? 'none' : 'block');
+        }
+        window.onclick = function(event) {
+        var modal = document.getElementById('userInfo');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
     <div class="main-content-wrapper d-flex clearfix">
         <header class="header-area clearfix">
             <div class="nav-close">

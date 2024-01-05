@@ -7,6 +7,9 @@ urlpatterns = [
     path('logout_view/',views.logout_view,name="logout_view"),
     path('creercompte',views.creercompte,name="creercompte"),
 
+    # gerer le compte du client
+    path('gerer_voter_compt/',views.gerer_voter_compt,name="gerer_voter_compt"),
+    
     # ========Admin client==================
     path('affiche_client',views.affiche_client,name="affiche_client"),
     path('info_client/',views.info_client,name="info_client"),

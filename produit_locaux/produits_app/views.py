@@ -161,7 +161,11 @@ def gerer_voter_compt(request):
         compte = Compte.objects.get(id=compte_id)
         client=Client.objects.get(id_email=compte_id)
         return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
-
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 # =======================Client===============================================
 def info_client(request):
@@ -200,41 +204,51 @@ def calculer_le_quart(products):
 
 def categories(request):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
-    derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
-    quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
-    categorie = Categorie.objects.all()
-    client=Client.objects.get(id_email=compte_id)
-    context = {
-        'derniers_produits': derniers_produits,
-        'categories': categorie,
-        'view_option': view_option,
-        'quarter_1': quart_1,
-        'quarter_2': quart_2,
-        'quarter_3': quart_3,
-        'quarter_4': quart_4,
-        'page_actuelle': 'categorie',
-        'compte':compte,
-        'client':client,
-    }
-    return render(request, 'interface_client/categorie.html', context)
-
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
+        derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
+        quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
+        categorie = Categorie.objects.all()
+        client=Client.objects.get(id_email=compte_id)
+        context = {
+            'derniers_produits': derniers_produits,
+            'categories': categorie,
+            'view_option': view_option,
+            'quarter_1': quart_1,
+            'quarter_2': quart_2,
+            'quarter_3': quart_3,
+            'quarter_4': quart_4,
+            'page_actuelle': 'categorie',
+            'compte':compte,
+            'client':client,
+        }
+        return render(request, 'interface_client/categorie.html', context)
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 def panier(request):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    client=Client.objects.get(id_email=compte)
-    la_panier, created = Panier.objects.get_or_create(id_client=client)
-    produits = la_panier.produits.all()
-    client=Client.objects.get(id_email=compte_id)
-    panier_items = [{'produit': produit, 'quantity': la_panier.quantite.get(str(produit.id_produit), 0)} for produit in
-                    produits]
-    somme = 0
-    for item in panier_items:
-        somme += item['produit'].prix * int(item['quantity'])
-    return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
-
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        client=Client.objects.get(id_email=compte)
+        la_panier, created = Panier.objects.get_or_create(id_client=client)
+        produits = la_panier.produits.all()
+        client=Client.objects.get(id_email=compte_id)
+        panier_items = [{'produit': produit, 'quantity': la_panier.quantite.get(str(produit.id_produit), 0)} for produit in
+                        produits]
+        somme = 0
+        for item in panier_items:
+            somme += item['produit'].prix * int(item['quantity'])
+        return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 def details_produit(request, id):
     compte_id = request.session.get('compte')
@@ -253,73 +267,103 @@ def details_produit(request, id):
         return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
     else:
         messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login') 
+        return redirect('login')
+     
 def ajouter_commentaire_client(request,produit_id,selected_rating):
     compte_id = request.session.get('compte')
-    client = Client.objects.get(id_email=compte_id)
-    texte_commentaire = request.POST.get('nouveau_commentaire')
-    commentaire = Commentaire(id_produit_id=produit_id, id_client_id=client.id_client, texte_commentaire=texte_commentaire,evaluation=selected_rating)
-    commentaire.save()
-    return redirect(f'/details_produit/{produit_id}')
-
+    if compte_id is not None:
+        client = Client.objects.get(id_email=compte_id)
+        texte_commentaire = request.POST.get('nouveau_commentaire')
+        commentaire = Commentaire(id_produit_id=produit_id, id_client_id=client.id_client, texte_commentaire=texte_commentaire,evaluation=selected_rating)
+        commentaire.save()
+        return redirect(f'/details_produit/{produit_id}')
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
+    
 def ajouter_panier_client(request, id):
     if request.method == 'POST':
         quantity = request.POST.get('quantity')
         produit = Produit.objects.get(id_produit=id)
         compte_id = request.session.get('compte')
-        compte = get_object_or_404(Compte, id=compte_id)
-        client = get_object_or_404(Client, id_email=compte)
-        panier, created = Panier.objects.get_or_create(id_client=client)
-        panier.produits.add(produit)
-        panier.quantite[str(produit.id_produit)] = quantity
-        panier.save()
-        return redirect(f'/details_produit/{id}')
+        if compte_id is not None:
+            compte = get_object_or_404(Compte, id=compte_id)
+            client = get_object_or_404(Client, id_email=compte)
+            panier, created = Panier.objects.get_or_create(id_client=client)
+            panier.produits.add(produit)
+            panier.quantite[str(produit.id_produit)] = quantity
+            panier.save()
+            return redirect(f'/details_produit/{id}')
+        else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+            messages.error(request, "La session est invalide vieuller connecter.")
+            return redirect('login')
     else:
         return HttpResponse("Invalid request method")
 
 
 def suprimer_panier_client(request, id):
     compte_id = request.session.get('compte')
-    client = Client.objects.get(id_email=compte_id)
-    produit = get_object_or_404(Produit, id_produit=id)
-    la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
-    la_panier.produits.remove(produit)
-    return redirect(panier)
+    if compte_id is not None:
+        client = Client.objects.get(id_email=compte_id)
+        produit = get_object_or_404(Produit, id_produit=id)
+        la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
+        la_panier.produits.remove(produit)
+        return redirect(panier)
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 
 def vider_panier(request):
     compte_id = request.session.get('compte')
-    client = Client.objects.get(id_email=compte_id)
-    la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
-    la_panier.produits.clear()
-    return redirect(panier)
+    if compte_id is not None:
+        client = Client.objects.get(id_email=compte_id)
+        la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
+        la_panier.produits.clear()
+        return redirect(panier)
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 
 def produits_par_categorie(request, nom_categorie):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    view_option = request.GET.get('view', quarter_1)
-    categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
-    categories=Categorie.objects.all()
-    produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
-    quarter_1, quarter_2, quarter_3, quarter_4 = calculer_le_quart(produits)
-    client=Client.objects.get(id_email=compte_id)
-    context = {
-        'categorie1': categorie1,
-        'produits': produits,
-        'categories':categories,
-        'nom':nom_categorie,
-        'view_option': view_option,
-        'quarter_1': quarter_1,
-        'quarter_2': quarter_2,
-        'quarter_3': quarter_3,
-        'quarter_4': quarter_4,
-        'compte':compte,
-        'client':client,
-    }
-    
-    return render(request, 'interface_client/produits_par_categorie.html', context)
-
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        view_option = request.GET.get('view', quarter_1)
+        categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
+        categories=Categorie.objects.all()
+        produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
+        quarter_1, quarter_2, quarter_3, quarter_4 = calculer_le_quart(produits)
+        client=Client.objects.get(id_email=compte_id)
+        context = {
+            'categorie1': categorie1,
+            'produits': produits,
+            'categories':categories,
+            'nom':nom_categorie,
+            'view_option': view_option,
+            'quarter_1': quarter_1,
+            'quarter_2': quarter_2,
+            'quarter_3': quarter_3,
+            'quarter_4': quarter_4,
+            'compte':compte,
+            'client':client,
+        }
+        
+        return render(request, 'interface_client/produits_par_categorie.html', context)
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 def paiement(request):
     compte_id = request.session.get('compte')
@@ -342,32 +386,43 @@ def paiement(request):
 
 def historique(request):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    client = Client.objects.get(id_email=compte_id)
-    historique = CommandeProduit.objects.filter(id_client=client).order_by('-date_commande')
-    client=Client.objects.get(id_email=compte_id)
-    return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique','client':client})
-
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        client = Client.objects.get(id_email=compte_id)
+        historique = CommandeProduit.objects.filter(id_client=client).order_by('-date_commande')
+        client=Client.objects.get(id_email=compte_id)
+        return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique','client':client})
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide veiuller connecter.")
+        return redirect('login')
 
 
 def details_historique(request,id):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    client = Client.objects.get(id_email=compte_id)
-    if not client.id_client:
-        return HttpResponse("Vous n'êtes pas connecté.")
-    try:
-        client = Client.objects.get(id_client=client.id_client)
-    except Client.DoesNotExist:
-        return HttpResponse("Client non trouvé.")
-    historique_commandes = CommandeProduit.objects.filter(id_client=client.id_client).order_by('-date_commande')
-    produits_de_commande = []
-    for commande in historique_commandes:
-        if commande.id_commande == id:
-            produits_de_commande = commande.produits.all()
-            break
-    return render(request, 'interface_client/details_historique.html', {'produits': produits_de_commande,'compte':compte})
-
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        client = Client.objects.get(id_email=compte_id)
+        if not client.id_client:
+            return HttpResponse("Vous n'êtes pas connecté.")
+        try:
+            client = Client.objects.get(id_client=client.id_client)
+        except Client.DoesNotExist:
+            return HttpResponse("Client non trouvé.")
+        historique_commandes = CommandeProduit.objects.filter(id_client=client.id_client).order_by('-date_commande')
+        produits_de_commande = []
+        for commande in historique_commandes:
+            if commande.id_commande == id:
+                produits_de_commande = commande.produits.all()
+                break
+        return render(request, 'interface_client/details_historique.html', {'produits': produits_de_commande,'compte':compte})
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide veiuller connecter.")
+        return redirect('login')
+    
 def vider_historique(request):
     compte_id = request.session.get('compte')
     if compte_id is not None:

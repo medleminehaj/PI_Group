@@ -2,6 +2,11 @@
 {% load static %}
 {% block content %}
 <style>
+
+
+.my_picture{
+color:transparent;
+}
 .form1 {
     display: flex;
     flex-direction: column;
@@ -98,26 +103,22 @@ button {
 
     <div class="amado-pro-catagory clearfix">
       <div class="user-icon">
-      <form class="form1">
-        <!-- <span class="title">You really like the project</span>
-        <span class="sub mb">Register to get full access now :)</span> -->
+      <form action="{% url 'modifier_compte_client' compte.id %}" method="post" class="form1" enctype="multipart/form-data">
+        {% csrf_token %}
         <div class="head">
-        <input id="file" type="file">
-        <label class="avatar1" for="file">
-          <span>
+        <label>
             <img class="img_compt1" id="avatar-img" src="{{compte.image.url}}" alt="vatar" width="50" height="60">
-          </span>
-          <div class="edit-icon" onclick="openFileExplorer()">
-              <img class="icon_compt" src="{% static 'images/stylo.png' %}" alt="User Icon">
-          
+          <div class="edit-icon">
+              <input type="file" name="image" style="display:none;">
           </div>
-          
+
         </label>
         </div>
-          <input type="text" class="input" placeholder="username">
-          <input type="email" class="input" placeholder="email">
-          <input type="password" class="input" placeholder="password"> 
-          <button>modifie</button>
+          <input type="text" class="input" placeholder="nom" value="{{client.nom}}" name="nom">
+          <input type="text" class="input" placeholder="prenom" value="{{client.prenom}}" name="prenom">
+          <input type="text" class="input" name="num_tel" pattern="^(20|22|42|41|46|48|32|36|38)\d{6}$" placeholder="Entrez le numéro de téléphone" title="Le numéro de téléphone doit commencer par 20,22,42,41,46,48,32,36 ou 38 et être suivi de 6 chiffres." value="{{client.num_tel}}">
+          <input type="text" class="input" placeholder="votre adresse" value="{{client.adresse}}" name="adresse">
+          <button>modifier</button>
       </form>
       </div>
     </div>

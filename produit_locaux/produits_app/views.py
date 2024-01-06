@@ -248,6 +248,23 @@ def vider_historique(request):
         print("Erreur: Le compte_id n'est pas présent dans la session.")
     return redirect('historique')
 
+def modifier_compte_client(request,id):
+    compte = get_object_or_404(Compte, id=id)
+    client = Client.objects.get(id_email=id)
+    if request.method == 'POST':
+        client.nom = request.POST.get('nom')
+        client.prenom = request.POST.get('prenom')
+        client.num_tel = request.POST.get('num_tel')
+        client.adresse = request.POST.get('adresse')
+        client.save()
+        if 'image' in request.FILES:
+            compte.image = request.FILES['image']
+        else:
+            pass
+        compte.save()
+        return redirect('index')
+
+
 # ==========================================end client==========================================
 
 # =======================Admin Client===============================================

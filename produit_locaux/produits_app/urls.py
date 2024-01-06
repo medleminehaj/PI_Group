@@ -77,6 +77,7 @@ urlpatterns = [
     path("historique/",views.historique,name="historique"),
     path("details_historique/<int:id>",views.details_historique,name="details_historique"),
     path("vider_historique/",views.vider_historique,name="vider_historique"),
+    path("modifier_compte_clien/<int:id>",views.modifier_compte_client,name="modifier_compte_client"),
 
 
 ]

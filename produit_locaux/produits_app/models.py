@@ -28,7 +28,7 @@ class Fournisseur(models.Model):
     num_tel = models.IntegerField(default=0)
     adresse = models.CharField(max_length=100, default='adresse')
     description = models.TextField()
-    produits = models.ManyToManyField(Produit)
+    produits = models.ManyToManyField(Produit ,blank=True)
 
 class CommandeProduit(models.Model):
     id_commande = models.AutoField(primary_key=True)

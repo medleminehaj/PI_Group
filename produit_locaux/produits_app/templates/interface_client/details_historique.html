@@ -1,5 +1,6 @@
 {% extends 'interface_client/nav_bar.html' %}
 {% block content %}
+{% if compte %}
 <div class="cart-table-area section-padding-100">
             <div class="container-fluid">
                 <div class="row">
@@ -79,4 +80,5 @@
             </div>
         </div>
     </div>
+{% endif %}
 {% endblock %}

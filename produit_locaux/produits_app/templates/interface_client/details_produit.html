@@ -41,6 +41,7 @@
             color: #FFD700;
         }
 </style>
+{% if compte %}
 <div class="single-product-area section-padding-100 clearfix">
             <div class="container-fluid">
 
@@ -190,6 +191,7 @@
             </div>
         </div>
     </div>
+{% endif %}
 <script>
     function submitForm() {
   const selectedRating = document.getElementById('rating-value').value;
@@ -231,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+
 
 {% endblock %}
 

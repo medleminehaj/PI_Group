@@ -1,5 +1,6 @@
 {% extends 'interface_client/nav_bar.html' %}
 {% block content %}
+{% if compte %}
 <div class="products-catagories-area clearfix ">
 
     <div class="amado-pro-catagory clearfix">
@@ -17,4 +18,5 @@
                 {% endfor %}
             </div>
 </div>
+{% endif %}
 {% endblock %}

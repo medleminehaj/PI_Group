@@ -6,6 +6,8 @@ class Compte(models.Model):
     password = models.CharField(max_length=50)
     etat=models.CharField(max_length=20, default='active')
     image = models.ImageField(upload_to='produits_app/static/images/', default='produits_app/static/images/default_image.png')
+    def __str__(self):
+        return self.email
 
 
 class Produit(models.Model):

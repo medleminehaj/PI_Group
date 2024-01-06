@@ -24,7 +24,8 @@
                 {% csrf_token %}
                 {% if messages %}
                       {% for message in messages %}
-                          <h3 style="color:red;">{{ message }}</h3>
+                      {% if message != 'code sent to your email.' %}<h3 style="color:red;">{{ message }}</h3>{% endif %}
+                      {% if message == 'Account created and verified. You are now logged in.' %}<h3 style="color: green;">{{ message }}</h3>{% endif %}
                       {% endfor %}
               {% endif %}
               <div class="field">
@@ -37,8 +38,8 @@
                 <div class="btn-layer"></div>
                 <input type="submit" value="Login">
               </div>
-      
               <div class="signup-link">Not a member? <a href="{% url 'creercompte' %}">Signup now</a></div>
+              <div class="signup-link">Mot de pass oublier? <a href="{% url 'request_password_reset' %}">Reinisialiser</a></div>
             </form>
           </div>
         </div>

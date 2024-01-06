@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="{% static 'css/kk.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title-text">
+            <div class="title login">Email de Verification</div>
+        </div>
+        <div class="form-container">
+            <div class="slider-tab"></div>
+            <div class="form-inner">
+                <form action="{% url 'verify' %}" class="signup" method="post">
+                    <div class="field">
+                        <p>Code de verification envoyer vers :</p>
+                        <h3>{{ email }}</h3>
+                    </div><br>
+                    {% csrf_token %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <h3 style="color: red;">{{ message }}</h3>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="field">
+                        <input type="text" id="code" name="code" placeholder="Enter le code de verification" required>
+                    </div>
+                    <div class="field btn">
+                        <div class="btn-layer">
+                            <input type="submit" value="Verifier">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

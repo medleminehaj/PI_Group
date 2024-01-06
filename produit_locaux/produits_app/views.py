@@ -3,14 +3,118 @@ from django.contrib import messages
 from datetime import date
 from .models import *
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+from random import randint
 
 # =======================login , logout and creercompte===============================================
+
+#==========================Debut verification==================================
+
+def generate_verification_code():
+    return str(randint(100000, 999999))
+
+def send_verification_email(to_email, verification_code):
+    subject = 'Verification Code'
+    message = f'Your verification code is: {verification_code}'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [to_email]
+    send_mail(subject, message, from_email, recipient_list)
+
+def verify(request):
+    email = request.session.get('email')
+    verification_code = request.session.get('verification_code')
+    if not email or not verification_code:
+        messages.error(request, 'Invalid verification session data.')
+        return redirect('index')
+    if request.method == 'POST':
+        entered_code = request.POST.get('code')
+        if entered_code == verification_code:
+            password = request.session.get('password')
+            etat = request.session.get('etat')
+            if not Compte.objects.filter(email=email).exists():
+                compte = Compte(email=email, password=password, etat=etat)
+                compte.save()
+                request.session['compte'] = compte.id
+                del request.session['email']
+                del request.session['password']
+                del request.session['etat']
+                del request.session['verification_code']
+                if etat == 'client':
+                    client = Client(id_email=compte)
+                    client.save()
+                elif etat == 'fournisseur':
+                    fournisseur = Fournisseur(id_email=compte)
+                    fournisseur.save()
+                messages.success(request, 'Account created and verified. You can now log in.')
+                return redirect('login')
+            else:
+                messages.error(request, "Account already exists. Please log in.")
+                return redirect('login')
+        else:
+            messages.error(request, 'Invalid verification code.')
+    return render(request, 'verification/verify.html', {'email': email, 'verification_code': verification_code})
+
+#==========================End verification==================================
+ 
+#==========================Mot de pass oublier==============================
+
+def request_password_reset(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user_exists = Compte.objects.filter(email=email).exists()
+        if user_exists:
+            reset_code = generate_verification_code()
+            request.session['reset_email'] = email
+            request.session['reset_code'] = reset_code
+            subject = 'Password Reset Code'
+            message = f'Your password reset code is: {reset_code}'
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [email]
+            send_mail(subject, message, from_email, recipient_list)
+            messages.success(request, 'Password reset code sent to your email.')
+            return redirect(verify_password_reset)
+        else:
+            messages.error(request, 'Account with this email does not exist.')
+            return redirect(request_password_reset)
+    return render(request, 'verification/request_password_reset.html')
+
+def verify_password_reset(request):
+    if request.method == 'POST':
+        entered_code = request.POST.get('code')
+        expected_code = request.session.get('reset_code')
+        if entered_code == expected_code:
+            return redirect('reset_password')
+        else:
+            messages.error(request, 'Invalid verification code.')
+            return redirect('verify_password_reset')
+    return render(request, 'verification/verify_password_reset.html')
+
+def reset_password(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        if password == confirm_password:
+            email = request.session.get('reset_email')
+            user = Compte.objects.get(email=email)
+            user.password = password
+            user.save()
+            del request.session['reset_email']
+            del request.session['reset_code']
+            return redirect('login')
+        else:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('reset_password')
+    return render(request, 'verification/reset_password.html')
+
+#=========================End Mot de pass oublier=========================
+
 def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         compte_existe = Compte.objects.filter(email=email, password=password)
-        if compte_existe.exists():
+        if compte_existe:
             compte = Compte.objects.get(email=email)
             request.session['compte'] = compte.id
             if compte.etat == 'admin':
@@ -28,19 +132,27 @@ def logout_view(request):
 
 def creercompte(request):
     if request.method == 'POST':
-        email= request.POST.get('email')
+        email = request.POST.get('email')
+        request.session['email'] = email
         password = request.POST.get('password')
         etat=request.POST.get('etat')
         compte_existe = Compte.objects.filter(email=email)
         if not compte_existe.exists():
-            compte = Compte(email=email, password=password, etat=etat)
-            compte.save()
-            return redirect('login')
+            code = generate_verification_code()
+            send_verification_email(email, code)
+            request.session['verification_code'] = code
+            request.session['email'] = email
+            request.session['password'] = password
+            request.session['etat'] = etat
+            return redirect('verify')
         messages.error(request, "Le compte déja existe")
-        return redirect('creercompte')
+        return redirect('login')
     return render(request,"login/creercompte.html")
 
+
 # ==========================================end login , logout and creercompte==========================================
+
+# ====================================Client===============================================
 
 def gerer_voter_compt(request):
     compte_id = request.session.get('compte')
@@ -51,6 +163,7 @@ def gerer_voter_compt(request):
 # =======================Client===============================================
 def info_client(request):
     return HttpResponse("info inserted succefuly")
+
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
     compte_id = request.session.get('compte')
@@ -73,7 +186,7 @@ def calculer_le_quart(products):
 def categories(request):
     compte_id = request.session.get('compte')
     compte = Compte.objects.get(id=compte_id)
-    view_option = request.GET.get('view', '12')  # Valeur par défaut '12' si le paramètre n'est pas présent
+    view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
     derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
     quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
     categorie = Categorie.objects.all()
@@ -96,7 +209,7 @@ def categories(request):
 def panier(request):
     compte_id = request.session.get('compte')
     compte = Compte.objects.get(id=compte_id)
-    client=Client.objects.get(id_email=compte_id)
+    client=Client.objects.get(id_email=compte)
     la_panier, created = Panier.objects.get_or_create(id_client=client)
     produits = la_panier.produits.all()
     client=Client.objects.get(id_email=compte_id)
@@ -133,8 +246,9 @@ def ajouter_panier_client(request, id):
     if request.method == 'POST':
         quantity = request.POST.get('quantity')
         produit = Produit.objects.get(id_produit=id)
-        client_id = request.session.get('compte')
-        client = get_object_or_404(Client, id_email=client_id)
+        compte_id = request.session.get('compte')
+        compte = get_object_or_404(Compte, id=compte_id)
+        client = get_object_or_404(Client, id_email=compte)
         panier, created = Panier.objects.get_or_create(id_client=client)
         panier.produits.add(produit)
         panier.quantite[str(produit.id_produit)] = quantity
@@ -164,7 +278,7 @@ def vider_panier(request):
 def produits_par_categorie(request, nom_categorie):
     compte_id = request.session.get('compte')
     compte = Compte.objects.get(id=compte_id)
-    view_option = request.GET.get('view', '12')
+    view_option = request.GET.get('view', quarter_1)
     categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
     categories=Categorie.objects.all()
     produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]

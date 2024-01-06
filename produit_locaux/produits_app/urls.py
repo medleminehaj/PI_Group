@@ -6,6 +6,12 @@ urlpatterns = [
     path('',views.login,name="login"),
     path('logout_view/',views.logout_view,name="logout_view"),
     path('creercompte',views.creercompte,name="creercompte"),
+    
+    # =========Verification===============
+    path('verify/', views.verify, name='verify'),
+    path('request_password_reset/', views.request_password_reset, name='request_password_reset'),
+    path('verify_password_reset/', views.verify_password_reset, name='verify_password_reset'),
+    path('reset_password/', views.reset_password, name='reset_password'),
 
     # gerer le compte du client
     path('gerer_voter_compt/',views.gerer_voter_compt,name="gerer_voter_compt"),

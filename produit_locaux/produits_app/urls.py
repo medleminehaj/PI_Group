@@ -13,6 +13,9 @@ urlpatterns = [
     path('verify_password_reset/', views.verify_password_reset, name='verify_password_reset'),
     path('reset_password/', views.reset_password, name='reset_password'),
 
+    # gerer le compte du client
+    path('gerer_voter_compt/',views.gerer_voter_compt,name="gerer_voter_compt"),
+    
     # ========Admin client==================
     path('affiche_client',views.affiche_client,name="affiche_client"),
     path('info_client/',views.info_client,name="info_client"),
@@ -80,6 +83,7 @@ urlpatterns = [
     path("historique/",views.historique,name="historique"),
     path("details_historique/<int:id>",views.details_historique,name="details_historique"),
     path("vider_historique/",views.vider_historique,name="vider_historique"),
+    path("modifier_compte_clien/<int:id>",views.modifier_compte_client,name="modifier_compte_client"),
 
 
 ]

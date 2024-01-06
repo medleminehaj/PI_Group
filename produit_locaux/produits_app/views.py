@@ -154,6 +154,13 @@ def creercompte(request):
 
 # ====================================Client===============================================
 
+def gerer_voter_compt(request):
+    compte_id = request.session.get('compte')
+    compte = Compte.objects.get(id=compte_id)
+    client=Client.objects.get(id_email=compte_id)
+    return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
+
+# =======================Client===============================================
 def info_client(request):
     return HttpResponse("info inserted succefuly")
 
@@ -161,7 +168,8 @@ def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
     compte_id = request.session.get('compte')
     compte = Compte.objects.get(id=compte_id)
-    return render(request, "interface_client/index.html" ,{"produits": produits,'page_actuelle': 'index','compte':compte})
+    client=Client.objects.get(id_email=compte_id)
+    return render(request, "interface_client/index.html" ,{"produits": produits,'page_actuelle': 'index','compte':compte,'client':client})
 
 
 def calculer_le_quart(products):
@@ -182,6 +190,7 @@ def categories(request):
     derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
     quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
     categorie = Categorie.objects.all()
+    client=Client.objects.get(id_email=compte_id)
     context = {
         'derniers_produits': derniers_produits,
         'categories': categorie,
@@ -192,6 +201,7 @@ def categories(request):
         'quarter_4': quart_4,
         'page_actuelle': 'categorie',
         'compte':compte,
+        'client':client,
     }
     return render(request, 'interface_client/categorie.html', context)
 
@@ -202,12 +212,13 @@ def panier(request):
     client=Client.objects.get(id_email=compte)
     la_panier, created = Panier.objects.get_or_create(id_client=client)
     produits = la_panier.produits.all()
+    client=Client.objects.get(id_email=compte_id)
     panier_items = [{'produit': produit, 'quantity': la_panier.quantite.get(str(produit.id_produit), 0)} for produit in
                     produits]
     somme = 0
     for item in panier_items:
         somme += item['produit'].prix * int(item['quantity'])
-    return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier'})
+    return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
 
 
 def details_produit(request, id):
@@ -215,12 +226,13 @@ def details_produit(request, id):
     compte = Compte.objects.get(id=compte_id)
     produit = Produit.objects.filter(id_produit=id).first()
     commentaires=Commentaire.objects.filter(id_produit=id)
+    client=Client.objects.get(id_email=compte_id)
     moyenne = 0.0
     evaluations = [com.evaluation for com in commentaires]
     if evaluations:
         moyenne = sum(evaluations) / len(evaluations)
 
-    return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte})
+    return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
 
 def ajouter_commentaire_client(request,produit_id,selected_rating):
     compte_id = request.session.get('compte')
@@ -271,6 +283,7 @@ def produits_par_categorie(request, nom_categorie):
     categories=Categorie.objects.all()
     produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
     quarter_1, quarter_2, quarter_3, quarter_4 = calculer_le_quart(produits)
+    client=Client.objects.get(id_email=compte_id)
     context = {
         'categorie1': categorie1,
         'produits': produits,
@@ -282,7 +295,9 @@ def produits_par_categorie(request, nom_categorie):
         'quarter_3': quarter_3,
         'quarter_4': quarter_4,
         'compte':compte,
+        'client':client,
     }
+    
     return render(request, 'interface_client/produits_par_categorie.html', context)
 
 
@@ -310,7 +325,8 @@ def historique(request):
     compte = Compte.objects.get(id=compte_id)
     client = Client.objects.get(id_email=compte_id)
     historique = CommandeProduit.objects.filter(id_client=client).order_by('-date_commande')
-    return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique'})
+    client=Client.objects.get(id_email=compte_id)
+    return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique','client':client})
 
 
 
@@ -345,6 +361,23 @@ def vider_historique(request):
     else:
         print("Erreur: Le compte_id n'est pas présent dans la session.")
     return redirect('historique')
+
+def modifier_compte_client(request,id):
+    compte = get_object_or_404(Compte, id=id)
+    client = Client.objects.get(id_email=id)
+    if request.method == 'POST':
+        client.nom = request.POST.get('nom')
+        client.prenom = request.POST.get('prenom')
+        client.num_tel = request.POST.get('num_tel')
+        client.adresse = request.POST.get('adresse')
+        client.save()
+        if 'image' in request.FILES:
+            compte.image = request.FILES['image']
+        else:
+            pass
+        compte.save()
+        return redirect('index')
+
 
 # ==========================================end client==========================================
 

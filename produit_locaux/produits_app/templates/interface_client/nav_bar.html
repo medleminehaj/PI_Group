@@ -165,17 +165,17 @@
     width: 21px;
     height: 25px;
 }
-.ajou{
 
-}
         </style>
 </head>
-
+{% if compte %}
 <body>
     <nav class="navbar_en_haut">
         <div class="container">
             <a href="{% url 'index'%}" class="logo">Produits Locaux</a>
-            <ul class="nav-links">
+            {% if user_type == 'client' %}
+            <button>Ajouter</button>
+            {% endif %}            <ul class="nav-links">
                 <li class="user-account">
                     <div class="user-icon">
                         <img src="{{compte.image.url}}" alt="User Icon" id="userImage" onclick="toggleModal()" width="40" height="40">
@@ -200,7 +200,7 @@
                                         <button>Gérer votre compte</button>
                                     </form>
                                     <div class="form-footer">
-                                        <a href="#">se deconecter</a> 
+                                        <a href="{% url 'logout_view' %}">se deconecter</a> 
                                     </div>
                             
                                 </div>
@@ -212,7 +212,7 @@
                     </div>
                 </li>
                 <li>
-                    <button class="ajou" type="submit" value="ajouter"></button>
+                    
                 </li>
             </ul>
         </div>
@@ -300,5 +300,6 @@
 
 
 </body>
+{% endif %}
 
 </html>

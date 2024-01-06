@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from random import randint
+from django.contrib.auth import logout
 
 # =======================login , logout and creercompte===============================================
 
@@ -24,7 +25,7 @@ def send_verification_email(to_email, verification_code):
 def verify(request):
     email = request.session.get('email')
     verification_code = request.session.get('verification_code')
-    if not email or not verification_code:
+    if not email or not verification_code :
         messages.error(request, 'Invalid verification session data.')
         return redirect('index')
     if request.method == 'POST':
@@ -128,6 +129,7 @@ def login(request):
     return render(request, "login/login.html")
 
 def logout_view(request):
+    logout(request)
     return redirect('login')
 
 def creercompte(request):
@@ -137,7 +139,7 @@ def creercompte(request):
         password = request.POST.get('password')
         etat=request.POST.get('etat')
         compte_existe = Compte.objects.filter(email=email)
-        if not compte_existe.exists():
+        if not compte_existe.exists(): 
             code = generate_verification_code()
             send_verification_email(email, code)
             request.session['verification_code'] = code
@@ -149,16 +151,17 @@ def creercompte(request):
         return redirect('login')
     return render(request,"login/creercompte.html")
 
-
 # ==========================================end login , logout and creercompte==========================================
 
 # ====================================Client===============================================
 
 def gerer_voter_compt(request):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    client=Client.objects.get(id_email=compte_id)
-    return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
+    if compte_id is not None:
+        compte = Compte.objects.get(id=compte_id)
+        client=Client.objects.get(id_email=compte_id)
+        return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
+
 
 # =======================Client===============================================
 def info_client(request):
@@ -166,11 +169,23 @@ def info_client(request):
 
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
+    
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    client=Client.objects.get(id_email=compte_id)
-    return render(request, "interface_client/index.html" ,{"produits": produits,'page_actuelle': 'index','compte':compte,'client':client})
+    if compte_id is not None:
+        compte = get_object_or_404(Compte, id=compte_id)
+        client = get_object_or_404(Client, id_email=compte_id)
 
+        return render(request, "interface_client/index.html", {
+            "produits": produits,
+            'page_actuelle': 'index',
+            'compte': compte,
+            'client': client,
+        })
+    else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 def calculer_le_quart(products):
     total_sum = 0
@@ -223,17 +238,22 @@ def panier(request):
 
 def details_produit(request, id):
     compte_id = request.session.get('compte')
-    compte = Compte.objects.get(id=compte_id)
-    produit = Produit.objects.filter(id_produit=id).first()
-    commentaires=Commentaire.objects.filter(id_produit=id)
-    client=Client.objects.get(id_email=compte_id)
-    moyenne = 0.0
-    evaluations = [com.evaluation for com in commentaires]
-    if evaluations:
-        moyenne = sum(evaluations) / len(evaluations)
+    
 
-    return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
+    if compte_id is not None:
+        compte = get_object_or_404(Compte, id=compte_id)
+        produit = Produit.objects.filter(id_produit=id).first()
+        commentaires=Commentaire.objects.filter(id_produit=id)
+        client=Client.objects.get(id_email=compte_id)
+        moyenne = 0.0
+        evaluations = [com.evaluation for com in commentaires]
+        if evaluations:
+            moyenne = sum(evaluations) / len(evaluations)
 
+        return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
+    else:
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login') 
 def ajouter_commentaire_client(request,produit_id,selected_rating):
     compte_id = request.session.get('compte')
     client = Client.objects.get(id_email=compte_id)

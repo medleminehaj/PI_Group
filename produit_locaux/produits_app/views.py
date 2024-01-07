@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from random import randint
 from django.contrib.auth import logout
-
+from django.contrib.auth.hashers import make_password
 # =======================login , logout and creercompte===============================================
 
 #==========================Debut verification==================================
@@ -26,7 +26,7 @@ def verify(request):
     email = request.session.get('email')
     verification_code = request.session.get('verification_code')
     if not email or not verification_code :
-        messages.error(request, 'Invalid verification session data.')
+        messages.error(request, 'Données de session de vérification invalides.')
         return redirect('index')
     if request.method == 'POST':
         entered_code = request.POST.get('code')
@@ -42,18 +42,14 @@ def verify(request):
                 del request.session['etat']
                 del request.session['verification_code']
                 if etat == 'client':
-                    client = Client(id_email=compte)
-                    client.save()
+                    return redirect('info_client')
                 elif etat == 'fournisseur':
-                    fournisseur = Fournisseur(id_email=compte)
-                    fournisseur.save()
-                messages.success(request, 'Account created and verified. You can now log in.')
-                return redirect('login')
+                    return HttpResponse('Fournisseur')
             else:
-                messages.error(request, "Account already exists. Please log in.")
+                messages.error(request, "Le compte existe déjà. Veuillez vous connecter.")
                 return redirect('login')
         else:
-            messages.error(request, 'Invalid verification code.')
+            messages.error(request, 'Code de vérification invalide.')
     return render(request, 'verification/verify.html', {'email': email, 'verification_code': verification_code})
 
 #==========================End verification==================================
@@ -73,10 +69,10 @@ def request_password_reset(request):
             from_email = settings.EMAIL_HOST_USER
             recipient_list = [email]
             send_mail(subject, message, from_email, recipient_list)
-            messages.success(request, 'Password reset code sent to your email.')
+            messages.success(request, 'Code de réinitialisation du mot de passe envoyé à votre adresse e-mail.')
             return redirect(verify_password_reset)
         else:
-            messages.error(request, 'Account with this email does not exist.')
+            messages.error(request, "Aucun compte associé à cet e-mail n'existe.")
             return redirect(request_password_reset)
     return render(request, 'verification/request_password_reset.html')
 
@@ -87,7 +83,7 @@ def verify_password_reset(request):
         if entered_code == expected_code:
             return redirect('reset_password')
         else:
-            messages.error(request, 'Invalid verification code.')
+            messages.error(request, 'Code de vérification invalide.')
             return redirect('verify_password_reset')
     return render(request, 'verification/verify_password_reset.html')
 
@@ -104,7 +100,7 @@ def reset_password(request):
             del request.session['reset_code']
             return redirect('login')
         else:
-            messages.error(request, 'Passwords do not match.')
+            messages.error(request, 'Les mots de passe ne correspondent pas.')
             return redirect('reset_password')
     return render(request, 'verification/reset_password.html')
 
@@ -169,7 +165,16 @@ def gerer_voter_compt(request):
 
 # =======================Client===============================================
 def info_client(request):
-    return HttpResponse("info inserted succefuly")
+    if request.method == 'POST':
+        id_email = request.session.get('compte')
+        nom = request.POST.get('nom')
+        prenom = request.POST.get('prenom')
+        numero_tel = request.POST.get('num_tel')
+        adresse = request.POST.get('adresse')
+        client = Client(id_email_id=id_email,nom=nom,prenom=prenom,num_tel=numero_tel,adresse=adresse)
+        client.save()
+        return redirect('index')
+    return render(request,"interface_client/info_client.html")
 
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
@@ -393,8 +398,6 @@ def historique(request):
         client=Client.objects.get(id_email=compte_id)
         return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique','client':client})
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide veiuller connecter.")
         return redirect('login')
 
@@ -657,13 +660,15 @@ def suprimer_produit(request,id_produit):
 # =======================Admin compte===============================================
 
 def affiche_compte(request):
-    comptes = Compte.objects.all()
+    id_email = request.session.get('compte')
+    comptes = Compte.objects.exclude(id=id_email)
     return render(request,"interface_admin/Admin_compte/compte_affichage.html",{'comptes':comptes})
 
 def ajouter_compte(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+
         etat=request.POST.get('etat')
         if 'image' in request.FILES:
             image = request.FILES['image']

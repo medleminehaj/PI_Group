@@ -6,14 +6,15 @@
         <h6 class="widget-title mb-30"><b class="majuscules">Catagories</b></h6>
         <ul>
             <li class="active"><a href="{% url 'categories' %}">
-                    <h6 class="majuscules">all</h6>
-                </a></li><br>
+                    <h6 class="majuscules" style=" text-transform: uppercase;">Tout</h6>
+                </a></li>
         </ul>
         {% for categorie in categories %}
         <div class="categories-menu">
+
             <ul>
                 <li><a href="{% url 'produits_par_categorie' categorie.nom %}">
-                        <h6 class="transparent-link majuscules">{{ categorie.nom }}</h6>
+                        <h6 class="transparent-link majuscules" style=" text-transform: uppercase;">{{ categorie.nom }}</h6>
                     </a>
                 </li>
             </ul>

@@ -338,7 +338,7 @@ def produits_par_categorie(request, nom_categorie):
     compte_id = request.session.get('compte')
     if compte_id is not None:
         compte = Compte.objects.get(id=compte_id)
-        view_option = request.GET.get('view', quarter_1)
+        view_option = request.GET.get('view', 12)
         categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
         categories=Categorie.objects.all()
         produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]

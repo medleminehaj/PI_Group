@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from random import randint
 from django.contrib.auth import logout
-from django.contrib.auth.hashers import make_password
+
 # =======================login , logout and creercompte===============================================
 
 #==========================Debut verification==================================
@@ -26,7 +26,7 @@ def verify(request):
     email = request.session.get('email')
     verification_code = request.session.get('verification_code')
     if not email or not verification_code :
-        messages.error(request, 'Données de session de vérification invalides.')
+        messages.error(request, 'Invalid verification session data.')
         return redirect('index')
     if request.method == 'POST':
         entered_code = request.POST.get('code')
@@ -44,14 +44,18 @@ def verify(request):
                 del request.session['etat']
                 del request.session['verification_code']
                 if etat == 'client':
-                    return redirect('info_client')
+                    client = Client(id_email=compte)
+                    client.save()
                 elif etat == 'fournisseur':
-                    return HttpResponse('Fournisseur')
+                    fournisseur = Fournisseur(id_email=compte)
+                    fournisseur.save()
+                messages.success(request, 'le compt et cree avec succ')
+                return redirect('login')
             else:
-                messages.error(request, "Le compte existe déjà. Veuillez vous connecter.")
+                messages.error(request, "Account already exists. Please log in.")
                 return redirect('login')
         else:
-            messages.error(request, 'Code de vérification invalide.')
+            messages.error(request, 'Invalid verification code.')
     return render(request, 'verification/verify.html', {'email': email, 'verification_code': verification_code})
 
 #==========================End verification==================================
@@ -71,10 +75,10 @@ def request_password_reset(request):
             from_email = settings.EMAIL_HOST_USER
             recipient_list = [email]
             send_mail(subject, message, from_email, recipient_list)
-            messages.success(request, 'Code de réinitialisation du mot de passe envoyé à votre adresse e-mail.')
+            messages.success(request, 'Password reset code sent to your email.')
             return redirect(verify_password_reset)
         else:
-            messages.error(request, "Aucun compte associé à cet e-mail n'existe.")
+            messages.error(request, 'Account with this email does not exist.')
             return redirect(request_password_reset)
     return render(request, 'verification/request_password_reset.html')
 
@@ -85,7 +89,7 @@ def verify_password_reset(request):
         if entered_code == expected_code:
             return redirect('reset_password')
         else:
-            messages.error(request, 'Code de vérification invalide.')
+            messages.error(request, 'Invalid verification code.')
             return redirect('verify_password_reset')
     return render(request, 'verification/verify_password_reset.html')
 
@@ -102,7 +106,7 @@ def reset_password(request):
             del request.session['reset_code']
             return redirect('login')
         else:
-            messages.error(request, 'Les mots de passe ne correspondent pas.')
+            messages.error(request, 'Passwords do not match.')
             return redirect('reset_password')
     return render(request, 'verification/reset_password.html')
 
@@ -164,23 +168,16 @@ def gerer_voter_compt(request):
 
 # =======================Client===============================================
 def info_client(request):
-    if request.method == 'POST':
-        id_email = request.session.get('compte')
-        nom = request.POST.get('nom')
-        prenom = request.POST.get('prenom')
-        numero_tel = request.POST.get('num_tel')
-        adresse = request.POST.get('adresse')
-        client = Client(id_email_id=id_email,nom=nom,prenom=prenom,num_tel=numero_tel,adresse=adresse)
-        client.save()
-        return redirect('index')
-    return render(request,"interface_client/info_client.html")
+    return HttpResponse("info inserted succefuly")
 
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
+    
     compte_id = request.session.get('compte')
     if compte_id is not None and compte_id != 66:
         compte = get_object_or_404(Compte, id=compte_id)
         client = get_object_or_404(Client, id_email=compte_id)
+
         return render(request, "interface_client/index.html", {
             "produits": produits,
             'page_actuelle': 'index',
@@ -234,6 +231,7 @@ def categories(request):
         }
         return render(request, 'interface_client/categorie.html', context)
     else:
+
         compte = Compte.objects.get(id=66)
         view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
         derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
@@ -253,6 +251,11 @@ def categories(request):
             'client':client,
         }
         return render(request, 'interface_client/categorie.html', context)
+
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
+        messages.error(request, "La session est invalide vieuller connecter.")
+        return redirect('login')
 
 def panier(request):
     compte_id = request.session.get('compte')
@@ -291,6 +294,7 @@ def details_produit(request, id):
         evaluations = [com.evaluation for com in commentaires]
         if evaluations:
             moyenne = sum(evaluations) / len(evaluations)
+
         return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
     else:
         compte = get_object_or_404(Compte, id=66)
@@ -377,7 +381,7 @@ def produits_par_categorie(request, nom_categorie):
     compte_id = request.session.get('compte')
     if compte_id is not None:
         compte = Compte.objects.get(id=compte_id)
-        view_option = request.GET.get('view', 12)
+        view_option = request.GET.get('view', quarter_1)
         categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
         categories=Categorie.objects.all()
         produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
@@ -450,6 +454,8 @@ def historique(request):
         client=Client.objects.get(id_email=compte_id)
         return render(request, 'interface_client/historique.html', {'historique': historique,'compte':compte,'page_actuelle':'historique','client':client})
     else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide veiuller connecter.")
         return redirect('login')
 
@@ -473,6 +479,8 @@ def details_historique(request,id):
                 break
         return render(request, 'interface_client/details_historique.html', {'produits': produits_de_commande,'compte':compte})
     else:
+        # Gérer le cas où le compte_id n'est pas présent dans la session
+        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide veiuller connecter.")
         return redirect('login')
     
@@ -483,6 +491,7 @@ def vider_historique(request):
             compte = Compte.objects.get(id=compte_id)
             client = Client.objects.get(id_email=compte)
             CommandeProduit.objects.filter(id_client=client).delete()
+            
         except (Compte.DoesNotExist, Client.DoesNotExist) as e:
             print(f"Erreur: {e}")
     else:
@@ -556,6 +565,8 @@ def suprimer_client(request,id_client):
 
 # ==========================================end admin client==========================================
 
+
+
 # =======================Admin Fournisseur===============================================
 
 def affiche_fournisseur(request):
@@ -573,15 +584,19 @@ def ajouter_fournisseur(request):
         mot_de_passe = request.POST.get('mot_de_passe')
         etat = 'fournisseur'
         compte_existe = Compte.objects.filter(email=email)
+
         if not compte_existe.exists():
             compte = Compte(email=email, password=mot_de_passe, etat=etat)
             compte.save()
+
             fournisseur = Fournisseur(id_email=compte, nom_enterprise=Nom, num_tel=num_tel, adresse=adresse, description=description)
             fournisseur.save()
+
             return redirect('affiche_fournisseur')
         else:
             messages.error(request, "Le compte déjà existe")
             return redirect('ajouter_fournisseur')
+
     return render(request, "interface_admin/Admin_Fournisseur/fournisseur_ajout.html")
 
 
@@ -606,6 +621,11 @@ def supprimer_fournisseur(request,id_fournisseur):
     return HttpResponse("erreur")
 
 # ==========================================end admin fournisseur==========================================
+
+
+
+
+
 
 # =======================Admin categorie===============================================
 
@@ -684,6 +704,8 @@ def modifier_produit(request, id_produit):
     categories = Categorie.objects.all()
     return render(request, 'interface_admin/Admin_Produits/produits_modification.html', {'produit': produit,'fournisseurs':fournisseurs,'categories':categories})
 
+
+
 def suprimer_produit(request,id_produit):
     objet = get_object_or_404(Produit, id_produit=id_produit)
     if request.method == 'GET':
@@ -696,15 +718,13 @@ def suprimer_produit(request,id_produit):
 # =======================Admin compte===============================================
 
 def affiche_compte(request):
-    id_email = request.session.get('compte')
-    comptes = Compte.objects.exclude(id=id_email)
+    comptes = Compte.objects.all()
     return render(request,"interface_admin/Admin_compte/compte_affichage.html",{'comptes':comptes})
 
 def ajouter_compte(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-
         etat=request.POST.get('etat')
         if 'image' in request.FILES:
             image = request.FILES['image']
@@ -735,6 +755,7 @@ def modifier_compte(request, id_compte):
         return redirect('affiche_compte')
     return render(request, 'interface_admin/Admin_compte/compte_modification.html', {'compte': compte})
 
+
 def supprimer_compte(request,id_compte):
     objet = get_object_or_404(Compte, id=id_compte)
     if request.method == 'GET':
@@ -743,6 +764,7 @@ def supprimer_compte(request,id_compte):
     return HttpResponse("erreur")
 
 # ==========================================end admin compte==========================================
+
 
 # =======================Admin panier===============================================
 
@@ -784,6 +806,8 @@ def modifier_panier(request, id_panier):
     produits = Produit.objects.all()
     return render(request, 'interface_admin/Admin_panier/panier_modification.html', {'panier': panier,'clients':clients,'produits':produits})
 
+
+
 def suprimer_panier(request,id_panier):
     objet = get_object_or_404(Panier, id_panier=id_panier)
     if request.method == 'GET':
@@ -792,6 +816,7 @@ def suprimer_panier(request,id_panier):
     return HttpResponse("erreur")
 
 # ==========================================end admin panier==========================================
+
 
 # =======================Admin Commentaire===============================================
 
@@ -825,6 +850,8 @@ def modifier_commentaire(request, id_commentaire):
     clients = Client.objects.all()
     return render(request, 'interface_admin/Admin_commentaire/commentaire_modification.html', {'commentaire':commentaire,'produits': produits,'clients':clients})
 
+
+
 def supprimer_commentaire(request,id_commentaire):
     objet = get_object_or_404(Commentaire, id_commentaire=id_commentaire)
     if request.method == 'GET':
@@ -833,6 +860,7 @@ def supprimer_commentaire(request,id_commentaire):
     return HttpResponse("erreur")
 
 # ==========================================end admin Commentaire==========================================
+
 
 # =======================Admin commandeProduit===============================================
 
@@ -862,6 +890,8 @@ def modifier_commandeProduit(request, id_commande):
     clients = Client.objects.all
     return render(request, 'interface_admin/Admin_commande_produit/commandeProduit_modification.html', {'clients': clients,'commande':commande})
 
+
+
 def suprimer_commandeProduit(request,id_commande):
     objet = get_object_or_404(CommandeProduit, id_commande=id_commande)
     if request.method == 'GET':
@@ -870,3 +900,4 @@ def suprimer_commandeProduit(request,id_commande):
     return HttpResponse("erreur")
 
 # ==========================================end admin commandeProduit==========================================
+

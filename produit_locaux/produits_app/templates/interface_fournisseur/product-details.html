@@ -1,0 +1,198 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Title  -->
+    <title>SUPNUM - Ecommerce Template | Product Details</title>
+
+    <!-- Favicon  -->
+    <link rel="icon" href="{% static 'img/core-img/supnum2.png' %}">
+
+    <!-- Core Style CSS -->
+    <link rel="stylesheet" href="{% static 'css/core-style.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .top{
+            top: -120px;
+            margin-bottom: -160px;
+        }
+        .botom{
+            margin-bottom: -10px;
+        }
+        .space{
+            margin-right: 10px;
+        }
+        .space:hover {
+            background-color: hsl(18, 90%, 49%);
+            box-shadow: rgb(249, 124, 75) 0px 7px 29px 0px;
+        }
+        .modifie:hover{
+            background-color: hsl(220, 90%, 52%);
+            box-shadow: rgb(44, 99, 252) 0px 7px 29px 0px;
+        }
+            .Register{
+            padding: 17px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            border: 1;
+            width: 190px;
+            background-color: rgb(248, 249, 248);
+            box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-size: 12px;
+            transition: all 0.5s ease;
+        }
+        .Register:hover {
+        letter-spacing: 3px;
+        color: hsl(0, 0%, 100%);
+        
+        }
+
+        .Register:active {
+        letter-spacing: 3px;
+        background-color: hsl(261deg 80% 48%);
+        color: hsl(0, 0%, 100%);
+        box-shadow: rgb(93 24 220) 0px 0px 0px 0px;
+        transform: translateY(10px);
+        transition: 100ms;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content-wrapper d-flex clearfix">
+        <header class="header-area clearfix">
+            {% include 'interface_fournisseur/navbar.html' %}
+        </header>
+        <div class="single-product-area section-padding-100 clearfix top">
+            <div class="container-fluid botom">
+
+                <div class="row">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-50">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'product_details' id=produit.id_produit %}">Categorie : {{ produit.categorie.nom }}</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Nom : {{ produit.nom }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-7">
+                        <div class="single_product_thumb">
+                            <div id="product_details_slider" class="carousel slide" data-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <a class="gallery_img" href="{{ produit.image_produit.url }}">
+                                            <img class="d-block w-100" src="{{ produit.image.url }}"
+                                                alt="First slide">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="single_product_desc">
+                            <!-- Product Meta Data -->
+                            <div class="product-meta-data">
+                                <div class="line"></div>
+                                <p class="product-price">${{ produit.prix }}</p>
+                                <b>Nom :</b>
+                                <h5>{{ produit.nom }}</h5>
+                                </div>
+                               
+                            <div class="short_overview my-5">
+                                <b>Description :</b>
+                                <p>{{ produit.description }}</p>
+                            </div>
+
+                            <!-- Add to Cart Form -->
+                            <form action="/add_to_cart/{{ produit.id_produit }}" id="addToCartForm" class="cart clearfix" method="post">
+                                {% csrf_token %}
+                                <div class="cart-btn d-flex mb-50">
+                                    <!-- <p>Quantité</p>
+                                    <div class="quantity">
+                                        <input type="number" class="qty-text" id="qty" min="1" max="300" name="quantity" value="1">
+                                    </div> -->
+                                    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                                    <a href="#" onclick="showSweetAlert('{{ produit.id_produit }}')">
+                                        <button type="button" class="Register space"><b>Supprimer</b></button>
+                                    </a>
+                                    <a href="{% url 'modifier_produit' produit_id=produit.id_produit %}">
+                                        <button type="button" class="Register modifie"><b>Modifie</b></button>
+                                    </a>
+                                    <script>
+                                        function showSweetAlert(produitId) {
+                                            swal({
+                                                title: 'Êtes-vous sûr de vouloir supprimer ce produit?',
+                                                icon: 'warning',
+                                                buttons: ["Annuler", "Oui, supprimer"],
+                                                dangerMode: true,
+                                            }).then(function (willDelete) {
+                                                if (willDelete) {
+                                                    // Utiliser AJAX pour supprimer le produit
+                                                    deleteProduct(produitId);
+                                                }
+                                            });
+                                        }
+                                    
+                                        function deleteProduct(produitId) {
+                                            // Utiliser AJAX pour appeler la vue de suppression
+                                            $.ajax({
+                                                url: '/supprimer_produit/' + produitId + '/',
+                                                type: 'POST',
+                                                data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+                                                success: function (data) {
+                                                    // Rediriger vers la page d'accueil après la suppression
+                                                    window.location.href = '/';  // Remplacez '/' par l'URL de votre page d'accueil
+                                                },
+                                                error: function (error) {
+                                                    console.log(error);
+                                                }
+                                            });
+                                        }
+                                    </script>
+                                    
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Product Details Area End -->
+    </div>
+    <!-- ##### Main Content Wrapper End ##### -->
+
+    <!-- ##### Newsletter Area Start ##### -->
+
+    <!-- ##### Newsletter Area End ##### -->
+
+    <!-- ##### Footer Area Start ##### -->
+    <!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="{% static 'js/jquery/jquery-2.2.4.min.js' %}"></script>
+    <!-- Popper js -->
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <!-- Bootstrap js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Plugins js -->
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <!-- Active js -->
+    <script src="{% static 'js/active.js' %}"></script>
+
+</body>
+
+</html>

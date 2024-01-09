@@ -14,20 +14,14 @@
                 <div class="col-md-8">
                 <div class="main-card mb-3 card">
                     <div class="card-body">
-                        <h5 class="card-title">Les informations du client</h5>
-                        <form method="post" action="{% url 'info_client'  %}">
+                        <h5 class="card-title">Les informations du fournisseur</h5>
+                        <form method="post" action="{% url 'info_fournisseur'  %}">
                             {% csrf_token %}
                             <div class="form-row">
                                 <div class="col-md-12">
                                     <div class="position-relative form-group">
-                                        <label for="nom">Nom :</label>
-                                        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="position-relative form-group">
-                                        <label for="prenom">Prénom :</label>
-                                        <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prénom" class="form-control" required>
+                                        <label for="nom">Nom de l'entreprise :</label>
+                                        <input type="text" id="nom" name="nom_enterprise" placeholder="Entrez le nom de votre entreprise" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -41,6 +35,12 @@
                                         <label for="adresse">Adresse :</label>
                                         <input type="text" id="adresse" name="adresse" placeholder="Entrez votre adresse" class="form-control" required>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="position-relative form-group">
+                                    <label for="Description">Description :</label>
+                                    <input type="texterea" id="num_tel" name="Description" placeholder="Entrez votre Description" class="form-control" required>
                                 </div>
                             </div>
                             <div style="display:flex;justify-content:space-between">

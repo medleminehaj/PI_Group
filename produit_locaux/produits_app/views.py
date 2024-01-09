@@ -7,7 +7,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from random import randint
 from django.contrib.auth import logout
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password, make_password
+
 # =======================login , logout and creercompte===============================================
 
 #==========================Debut verification==================================
@@ -31,7 +32,7 @@ def verify(request):
     if request.method == 'POST':
         entered_code = request.POST.get('code')
         if entered_code == verification_code:
-            password = request.session.get('password')
+            password = make_password(request.POST.get('password'))
             etat = request.session.get('etat')
             if not Compte.objects.filter(email=email).exists():
                 compte = Compte(email=email, password=password, etat=etat)
@@ -44,7 +45,7 @@ def verify(request):
                 if etat == 'client':
                     return redirect('info_client')
                 elif etat == 'fournisseur':
-                    return HttpResponse('Fournisseur')
+                    return redirect('info_fournisseur')
             else:
                 messages.error(request, "Le compte existe déjà. Veuillez vous connecter.")
                 return redirect('login')
@@ -79,7 +80,7 @@ def request_password_reset(request):
 def verify_password_reset(request):
     if request.method == 'POST':
         entered_code = request.POST.get('code')
-        expected_code = request.session.get('reset_code')
+        expected_code = request.POST.get('reset_code')
         if entered_code == expected_code:
             return redirect('reset_password')
         else:
@@ -94,7 +95,7 @@ def reset_password(request):
         if password == confirm_password:
             email = request.session.get('reset_email')
             user = Compte.objects.get(email=email)
-            user.password = password
+            user.password = make_password(password)
             user.save()
             del request.session['reset_email']
             del request.session['reset_code']
@@ -110,14 +111,13 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        compte_existe = Compte.objects.filter(email=email, password=password)
-        if compte_existe:
-            compte = Compte.objects.get(email=email)
-            request.session['compte'] = compte.id
-            if compte.etat == 'admin':
+        compte_existe = Compte.objects.filter(email=email).first()
+        if compte_existe and check_password(password, compte_existe.password):
+            request.session['compte'] = compte_existe.id
+            if compte_existe.etat == 'admin':
                 return redirect('affiche_client')
-            elif compte.etat == 'fournisseur':
-                return HttpResponse("fournisseur")
+            elif compte_existe.etat == 'fournisseur':
+                return redirect('home')
             else:
                 return redirect('index')
         messages.error(request, "L'email ou le mot de passe est incorrect")
@@ -126,16 +126,17 @@ def login(request):
 
 def logout_view(request):
     logout(request)
+    request.session.clear()
     return redirect('login')
 
 def creercompte(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         request.session['email'] = email
-        password = request.POST.get('password')
-        etat=request.POST.get('etat')
+        password = make_password(request.POST.get('password'))
+        etat = request.POST.get('etat')
         compte_existe = Compte.objects.filter(email=email)
-        if not compte_existe.exists(): 
+        if not compte_existe.exists():
             code = generate_verification_code()
             send_verification_email(email, code)
             request.session['verification_code'] = code
@@ -161,7 +162,6 @@ def gerer_voter_compt(request):
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
-# =======================Client===============================================
 def info_client(request):
     if request.method == 'POST':
         id_email = request.session.get('compte')
@@ -247,8 +247,6 @@ def panier(request):
 
 def details_produit(request, id):
     compte_id = request.session.get('compte')
-    
-
     if compte_id is not None:
         compte = get_object_or_404(Compte, id=compte_id)
         produit = Produit.objects.filter(id_produit=id).first()
@@ -343,7 +341,6 @@ def produits_par_categorie(request, nom_categorie):
             'compte':compte,
             'client':client,
         }
-        
         return render(request, 'interface_client/produits_par_categorie.html', context)
     else:
         messages.error(request, "La session est invalide vieuller connecter.")
@@ -443,7 +440,7 @@ def affiche_client(request):
 def ajouter_client(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        password = request.POST.get('password')
+        password = make_password(request.POST.get('password'))
         nom = request.POST.get('nom')
         prenom = request.POST.get('prenom')
         num_tel = request.POST.get('num_tel')
@@ -497,7 +494,7 @@ def ajouter_fournisseur(request):
         adresse = request.POST.get('adresse')
         description = request.POST.get('description')
         email = request.POST.get('email')
-        mot_de_passe = request.POST.get('mot_de_passe')
+        mot_de_passe = make_password(request.POST.get('mot_de_passe'))
         etat = 'fournisseur'
         compte_existe = Compte.objects.filter(email=email)
         if not compte_existe.exists():
@@ -630,7 +627,7 @@ def affiche_compte(request):
 def ajouter_compte(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        password = request.POST.get('password')
+        password = make_password(request.POST.get('password'))
 
         etat=request.POST.get('etat')
         if 'image' in request.FILES:
@@ -652,7 +649,7 @@ def modifier_compte(request, id_compte):
     compte = get_object_or_404(Compte , id=id_compte)
     if request.method == 'POST':
         compte.email = request.POST.get('email')
-        compte.password = request.POST.get('password')
+        compte.password = make_password(request.POST.get('password'))
         compte.etat = request.POST.get('etat')
         if 'image' in request.FILES:
             compte.image = request.FILES['image']
@@ -797,3 +794,91 @@ def suprimer_commandeProduit(request,id_commande):
     return HttpResponse("erreur")
 
 # ==========================================end admin commandeProduit==========================================
+
+# =============================Fournisseur===============================
+
+def info_fournisseur(request):
+    if request.method == 'POST':
+        id_email = request.session.get('compte')
+        nom_enterprise = request.POST.get('nom_enterprise')
+        numero_tel = request.POST.get('num_tel')
+        adresse = request.POST.get('adresse')
+        Description = request.POST.get('Description')
+        fournisseur = Fournisseur(id_email_id=id_email, nom_enterprise=nom_enterprise, num_tel=numero_tel, adresse=adresse, description=Description)
+        fournisseur.save()
+        return redirect('home')
+    return render(request,"interface_fournisseur/info_fournisseur.html")
+
+def home(request):
+    produits = Produit.objects.all()[:20]
+    return render(request, "interface_fournisseur/index.html" , context={"produits": produits})
+
+def product_details(request, id):
+    produit = Produit.objects.filter(id_produit=id).first()
+    return render(request, "interface_fournisseur/product-details.html", {'produit': produit})
+
+def produit_form(request):
+    categories=Categorie.objects.all()
+    fournisseurs=Fournisseur.objects.all()
+    context={
+        "categories":categories,
+        "fournisseurs":fournisseurs,
+    }
+    return render(request, 'interface_fournisseur/ajouter_produit.html',context)
+
+def ajouter_produit(request):
+    if request.method == 'POST':
+        nom = request.POST.get('nom')
+        description = request.POST.get('description')
+        categorie_id = request.POST.get('categorie')
+        categorie = Categorie.objects.get(id_categorie=categorie_id)
+        prix = request.POST.get('prix')
+        fournisseur_id = 12
+        fournisseu = Fournisseur.objects.get(id_fournisseur=fournisseur_id)
+        emplacement = request.POST.get('emplacement')
+        image_produit = request.FILES['image_produit']
+        nouveau_produit = Produit(
+            nom=nom,
+            description=description,
+            categorie=categorie,
+            prix=prix,
+            id_fournisseur=fournisseu,
+            emplacement=emplacement,
+            image=image_produit,
+        )
+        nouveau_produit.save()
+    return redirect('home')
+
+def supprimer_produit(request, produit_id):
+    produit = get_object_or_404(Produit, id_produit=produit_id)
+    produit.delete()
+    return redirect('home')
+
+def categorie_form(request):
+    return render(request, 'interface_fournisseur/ajouter_categorie.html')
+
+def ajouter_categorie(request):
+    if request.method == 'POST':
+        nom = request.POST.get('nom')
+        description = request.POST.get('description')
+        nouvelle_categorie = Categorie(
+            nom=nom,
+            description=description
+        )
+        nouvelle_categorie.save()
+    return redirect('produit_form')
+
+def modifier_produit(request, produit_id):
+    produit = get_object_or_404(Produit, id_produit=produit_id)
+    categories = Categorie.objects.all()
+    if request.method == 'POST':
+        produit.nom = request.POST.get('nom')
+        produit.description = request.POST.get('description')
+        produit.categorie_id = request.POST.get('categorie')
+        produit.prix = request.POST.get('prix')
+        image_produit = request.FILES.get('image_produit')
+        if image_produit:
+            produit.image = image_produit
+        produit.save()
+        return redirect('product_details', id=produit.id_produit)
+    return render(request, 'interface_fournisseur/modifier_produit.html', {'produit': produit, 'categories': categories})

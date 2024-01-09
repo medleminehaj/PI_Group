@@ -69,7 +69,6 @@ urlpatterns = [
     path('modifier_commandeProduit/<int:id_commande>', views.modifier_commandeProduit, name="modifier_commandeProduit"),
 
     #=============Client home=========================
-
     path("index/", views.index, name="index"),
     path("details_produit/<int:id>", views.details_produit, name="details_produit"),
     path('ajouter_commentaire_client/<int:produit_id>/<int:selected_rating>/', views.ajouter_commentaire_client,name='ajouter_commentaire_client'),
@@ -85,5 +84,15 @@ urlpatterns = [
     path("vider_historique/",views.vider_historique,name="vider_historique"),
     path("modifier_compte_clien/<int:id>",views.modifier_compte_client,name="modifier_compte_client"),
 
+    #============Fournisseur=============
+    path('info_fournisseur/',views.info_fournisseur,name="info_fournisseur"),
+    path("home/", views.home, name="home"),
+    path("product_details/<int:id>", views.product_details, name="product_details"),
+    path('produit_form/', views.produit_form, name='produit_form'),
+    path('ajouter_produit/', views.ajouter_produit, name='ajouter_produit'),
+    path('supprimer_produit/<int:produit_id>/', views.supprimer_produit, name='supprimer_produit'),
+    path('categorie_form/', views.categorie_form, name='categorie_form'),
+    path('ajouter_categorie/', views.ajouter_categorie, name='ajouter_categorie'),
+    path('modifier_produit/<int:produit_id>/', views.modifier_produit, name='modifier_produit'),
 
 ]

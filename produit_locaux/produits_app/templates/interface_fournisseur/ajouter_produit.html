@@ -1,0 +1,210 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Title  -->
+    <title>SUPNUM - Ecommerce Template | Home</title>
+
+    <!-- Favicon  -->
+    <link rel="icon" href="{% static 'img/core-img/supnum2.png' %}">
+
+    <!-- Core Style CSS -->
+    <link rel="stylesheet" href="{% static 'css/core-style.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+    }
+    
+    form {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    input[type="text"], input[type="email"], textarea {
+        width: 100%;
+        padding: 3px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        box-sizing: border-box;
+    }
+    
+    input[type="submit"], input[type="reset"] {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    
+    input[type="submit"] {
+        background-color: #007BFF;
+        color: #ffffff;
+    }
+    
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+    
+    input[type="reset"] {
+        background-color: #FF6347;
+        color: #ffffff;
+    }
+    
+    input[type="reset"]:hover {
+        background-color: #ee4a31;
+    }
+    input[type="submit"] {
+        width: 45%;
+        padding: 10px;
+        background-color: #6c7aed;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 30px;
+    }
+    input[type="submit"]:hover {
+        background-color: #5e6ece;
+    }
+    .submit{
+        text-align: center;  /* Pour centrer horizontalement le contenu */
+        margin-top: 10px;
+    }
+    .form{
+        background-image: url('{% static "images/produit2.jpg" %}');
+    }
+    h4{
+        font-family: "Lucida Console", Courier, monospace;
+        text-align: center;
+    }
+    .categorieajou{
+        max-width: 25px;
+        max-height: 25px;
+        margin-top: -21px;
+        margin-left: 23px;
+    }
+    span.ajou{
+        color: blue;
+    }
+    .Register{
+    padding: 17px 40px;
+    border-radius: 50px;
+    cursor: pointer;
+    border: 1;
+    width: 280px;
+    background-color: rgb(248, 249, 248);
+    box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    transition: all 0.5s ease;
+    }
+    .Register:hover {
+    letter-spacing: 3px;
+    background-color: hsl(129, 69%, 45%);
+    color: hsl(0, 0%, 100%);
+    box-shadow: rgb(96, 248, 98) 0px 7px 29px 0px;
+    }
+
+    .Register:active {
+    letter-spacing: 3px;
+    background-color: hsl(261deg 80% 48%);
+    color: hsl(0, 0%, 100%);
+    box-shadow: rgb(93 24 220) 0px 0px 0px 0px;
+    transform: translateY(10px);
+    transition: 100ms;
+    }
+    .main-content-wrapper .header-area{
+                background-color: black;
+            }
+            .color{
+                background-color: black;
+            }
+            .main-content-wrapper .header-area{
+                background-color: black;
+            }
+            .wd{
+                width: 100%;
+            }
+            .sidebar .bx-search.bx1{
+  top: 35%;
+}
+        </style>
+</head>
+
+<body>
+    <div class="main-content-wrapper d-flex clearfix">
+
+        <!-- Header Area Start -->
+        <header class="header-area clearfix">
+            {% include 'interface_fournisseur/navbar.html' %}
+        </header>
+        <div class="products-catagories-area clearfix form">
+            <form method="post" action="/ajouter_produit/"  enctype="multipart/form-data">
+                {% csrf_token %}
+                <h4><b>Ajouter un nouveau produit</b></h4>
+                <label for="nom">Nom:</label>
+                <input type="text" name="nom" required>
+            
+                <label for="description">Description:</label>
+                <textarea name="description" required></textarea>
+                <label for="categorie">Catégorie:</label>
+                <select name="categorie" required>
+                    {% for categorie in categories %}
+                        <option value="{{ categorie.id_categorie }}">{{ categorie.nom }}</option>
+                    {% endfor %}
+                </select><br><br>
+                
+                <label for="prix">Prix:</label>
+                <input type="number" name="prix" required>
+            
+                <label for="emplacement">Emplacement:</label>
+                <input type="text" name="emplacement" required>
+            
+                <label for="image_produit">Image:</label>
+                <input type="file" name="image_produit" required>
+            
+                <div class="submit">
+                    <button class="Register" type="submit"><b>Register</b></button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    
+    <!-- ##### Footer Area End ##### -->
+
+    <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="{% static 'js/jquery/jquery-2.2.4.min.js' %}"></script>
+    <!-- Popper js -->
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <!-- Bootstrap js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- Plugins js -->
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <!-- Active js -->
+    <script src="{% static 'js\active.js' %}"></script>
+
+</body>
+
+</html>

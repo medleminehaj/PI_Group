@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id": "off"
+      }
+    ],
+    "axe/forms": [
+      "default",
+      {
+        "label": "off",
+        "select-name": "off"
+      }
+    ],
+    "meta-viewport": "off",
+    "highest-available-document-mode": "off",
+    "meta-charset-utf-8": "off",
+    "button-type": "off"
+  }
+}

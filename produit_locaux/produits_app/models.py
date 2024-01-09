@@ -20,6 +20,8 @@ class Produit(models.Model):
     emplacement = models.CharField(max_length=100)
     date_publication = models.DateField(auto_now_add=True)
     image = models.ImageField(upload_to='produits_app/static/images/')
+    def __str__(self):
+        return self.nom
     
 class Fournisseur(models.Model):
     id_fournisseur = models.AutoField(primary_key=True)

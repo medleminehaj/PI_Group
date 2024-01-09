@@ -3,10 +3,13 @@
 {% if compte != 66 %}
 <div class="shop_sidebar_area">
     <div class="widget catagory mb-50">
-        <h6 class="widget-title mb-30"><b class="majuscules">Catagories</b></h6>
+        <h6 style="border-radius: 5px; background-color: #3CB371; padding: 8px;">
+            <b style="font-size: 18px; color: white; text-transform: uppercase;">Catégories</b>
+        </h6>
+        <br>
         <ul>
             <li class="active"><a href="{% url 'categories' %}">
-                    <h6 class="majuscules" style=" text-transform: uppercase;">Tout</h6>
+                    <h6 class="majuscules"  style="font-size: 18px; color: white; margin-bottom: 10px; text-transform: uppercase; border-radius: 5px; background-color: #BDB76B; padding: 8px;">Tout</h6>
                 </a></li>
         </ul>
         {% for categorie in categories %}
@@ -14,7 +17,7 @@
 
             <ul>
                 <li><a href="{% url 'produits_par_categorie' categorie.nom %}">
-                        <h6 class="transparent-link majuscules" style=" text-transform: uppercase;">{{ categorie.nom }}</h6>
+                        <h6 class="transparent-link majuscules"style="font-size: 18px; color: white; margin-bottom: 10px; text-transform: uppercase; border-radius: 5px; background-color: #BDB76B; padding: 8px;">{{ categorie.nom }}</h6>
                     </a>
                 </li>
             </ul>
@@ -91,7 +94,10 @@
                 text-align: center;
             }
         </style>
-        <h4 class="h4">les nouveaux produit</h4><br>
+       <h4 class="h4" style="font-size: 24px; color: #333; margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold;">
+        Les Produits
+    </h4>
+    <br>
         <div class="row">
 
             {% for produit in derniers_produits %}

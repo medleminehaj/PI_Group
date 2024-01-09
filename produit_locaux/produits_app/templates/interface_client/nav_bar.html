@@ -11,162 +11,9 @@
     <title>SUPNUM - Ecommerce Template | Home</title>
     <link rel="icon" href="{% static 'images/logo_supnum.png' %}">
     <link rel="stylesheet" href="{% static 'css/interface_client/core-style_m.css' %}">
-    <link rel="stylesheet" href="{% static 'css/interface_client/ms.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="{% static 'css/interface_client/msc.css' %}">
     <style>
-        .user-account {
-            position: relative;
-        }
-        .user-icon{
-            height: 29px;
-        }
-        
-        .user-icon img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor:default;
-}
-.user-info {
-    display: none;
-    position: absolute;
-    top: 879%;
-    right: -21px;
-    transform: translate(0, -50%);
-    width: 270px;
-    background-color: #fff;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    text-align: left;
-    z-index: 999;
-    border-radius: 30px;
-}
-        
-        .user-icon:hover + .user-info,
-        .user-info:hover {
-            display: block;
-        }
-        .container1 {
-          max-width: 300px;
-          background-color: #F1F7FE;
-          border-radius: 15px;
-          overflow-x: hidden;
-          cursor: default;
-          z-index: 1;
-        }
-        
-        .form {
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-            padding: 22px 24px 1px;
-            gap: 0px;
-            text-align: center;
-        }
-        
-        .form .head {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        
-        .form .head span {
-          font-size: 1.6rem;
-          font-weight: bolder;
-          color: black;
-        }
-        
-        .form .head p {
-          font-size: 1.1rem;
-          color: #fbf5f5;
-        }
-        
-        .form .inputs {
-          overflow: hidden;
-          background-color: #fff;
-          width: 100%;
-          margin: 1rem 0.5rem;
-          border-radius: 8px;
-          border-bottom: none;
-          outline: 0;
-        }
-        
-        .form .inputs input {
-          border: none;
-          outline: none;
-          padding: 8px 15px;
-          width: 100%;
-          height: 40px;
-          border-bottom: 1px solid rgba(128, 128, 128, 0.299);
-          font-weight: 200;
-        }
-        
-        .form button {
-          background-color: #4287ef;
-          color: white;
-          width: 100%;
-          height: 40px;
-          padding-top: 8px;
-          padding-bottom: 8px;
-          border: 0;
-          overflow: hidden;
-          border-radius: 25px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor:default;
-          transition: all 1s ease-in-out;
-        }
-        
-        .form button:hover {
-          background-color: #005ce6;
-        }
-        
-        .form-footer {
-          background-color: #e0ecfb;
-          padding: 16px;
-          font-size: 1rem;
-          text-align: center;
-        }
-        
-        .form-footer a {
-          font-weight: bolder;
-          color: #0066ff;
-          transition: all 3s ease-in-out;
-        }
-        
-        .form-footer a:hover {
-          color: #005ce6;
-        }
-        
-
-        #file {
-      display: none;
-    }
-
-    .avatar {
-      cursor: pointer;
-      display: inline-block;
-      position: relative;
-    }
-
-    .edit-icon {
-    background: transparent;
-    border-radius: 50%;
-    bottom: -7px;
-    height: 28px;
-    position: absolute;
-    right: -9px;
-    width: 24px;
-}
-    .user-icon .img_compt{
-        width: 53px;
-        height: 53px;
-    }
-    .user-icon .icon_compt {
-    width: 21px;
-    height: 25px;
-}
+     
 
         </style>
 </head>
@@ -178,7 +25,7 @@
             {% if user_type == 'client' %}
             <button>Ajouter</button>
             {% endif %}       
-            {% if request.session.compte != 66 %}    
+            {% if request.session.compte != 66  and request.session.compte is not None   %}    
              <ul class="nav-links">
                 <li class="user-account">
                     <div class="user-icon">
@@ -194,12 +41,7 @@
                                             <p>Numéro de téléphone: {{ client.num_tel }}</p>
                                         <p>Adresse: {{ client.adresse }}</p>
                                         <p>État: {{ compte.etat }}</p>
-                                            <!-- Display additional information from client as needed -->
-
-
-                                        <!-- Add other fields as needed -->
                                         <div class="inputs">
-                                            <!-- Additional input fields can be added here if necessary -->
                                         </div>
                                         <button>Gérer votre compte</button>
                                     </form><br>
@@ -242,16 +84,25 @@
         </div>
     </nav>
     <script>
+        var userInfo = document.getElementById('userInfo');
+
         function toggleModal() {
-            var userInfo = document.getElementById('userInfo');
+            
             userInfo.style.display = (userInfo.style.display === 'block' ? 'none' : 'block');
+
+            document.addEventListener('click', fermerPartie);
         }
-        window.onclick = function(event) {
-        var modal = document.getElementsByName(body);
-            if (event.target === modal) {
-                modal.style.display = 'none';
+        
+        function fermerPartie(e) {
+            
+        // Vérifier si l'élément cliqué est à l'intérieur de la partie
+            if (!userInfo.contains(e.target) && e.target.id !== "userImage") {
+                userInfo.style.display = 'none';
+
+                // Retirer le gestionnaire d'événements après avoir fermé la partie
+                document.removeEventListener('click', fermerPartie);
             }
-        }
+    }
     </script>
     <div class="main-content-wrapper d-flex clearfix">
         <header class="header-area clearfix">

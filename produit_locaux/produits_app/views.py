@@ -113,7 +113,7 @@ def login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         compte_existe = Compte.objects.filter(email=email, password=password)
-        if compte_existe.id != 66:
+        if compte_existe.exists():
             compte = Compte.objects.get(email=email)
             request.session['compte'] = compte.id
             if compte.etat == 'admin':
@@ -160,8 +160,7 @@ def gerer_voter_compt(request):
         client=Client.objects.get(id_email=compte_id)
         return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        return redirect('index')
 
 # =======================Client===============================================
 def info_client(request):
@@ -179,7 +178,7 @@ def info_client(request):
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
     compte_id = request.session.get('compte')
-    if compte_id is not None:
+    if compte_id is not None and compte_id != 66:
         compte = get_object_or_404(Compte, id=compte_id)
         client = get_object_or_404(Client, id_email=compte_id)
         return render(request, "interface_client/index.html", {
@@ -189,8 +188,17 @@ def index(request):
             'client': client,
         })
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        request.session['code_client'] = 66
+        compte = get_object_or_404(Compte, id=66)
+        client = get_object_or_404(Client, id_email=66)
+        return render(request, "interface_client/index.html", {
+            "produits": produits,
+            'page_actuelle': 'index',
+            'compte': compte,
+            'client': client,
+        })
+       
+        
 
 def calculer_le_quart(products):
     total_sum = 0
@@ -226,8 +234,25 @@ def categories(request):
         }
         return render(request, 'interface_client/categorie.html', context)
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        compte = Compte.objects.get(id=66)
+        view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
+        derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
+        quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
+        categorie = Categorie.objects.all()
+        client=Client.objects.get(id_email=compte_id)
+        context = {
+            'derniers_produits': derniers_produits,
+            'categories': categorie,
+            'view_option': view_option,
+            'quarter_1': quart_1,
+            'quarter_2': quart_2,
+            'quarter_3': quart_3,
+            'quarter_4': quart_4,
+            'page_actuelle': 'categorie',
+            'compte':compte,
+            'client':client,
+        }
+        return render(request, 'interface_client/categorie.html', context)
 
 def panier(request):
     compte_id = request.session.get('compte')
@@ -244,13 +269,19 @@ def panier(request):
             somme += item['produit'].prix * int(item['quantity'])
         return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        compte = Compte.objects.get(id=66)
+        client=Client.objects.get(id_email=66)
+        la_panier, created = Panier.objects.get_or_create(id_client=client)
+        produits = la_panier.produits.all()
+        client=Client.objects.get(id_email=compte_id)
+        panier_items = [{'produit': produit, 'quantity': la_panier.quantite.get(str(produit.id_produit), 0)} for produit in  produits]
+        somme = 0
+        for item in panier_items:
+            somme += item['produit'].prix * int(item['quantity'])
+        return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
 
 def details_produit(request, id):
     compte_id = request.session.get('compte')
-    
-
     if compte_id is not None:
         compte = get_object_or_404(Compte, id=compte_id)
         produit = Produit.objects.filter(id_produit=id).first()
@@ -262,8 +293,15 @@ def details_produit(request, id):
             moyenne = sum(evaluations) / len(evaluations)
         return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        compte = get_object_or_404(Compte, id=66)
+        produit = Produit.objects.filter(id_produit=id).first()
+        commentaires=Commentaire.objects.filter(id_produit=id)
+        client=Client.objects.get(id_email=66)
+        moyenne = 0.0
+        evaluations = [com.evaluation for com in commentaires]
+        if evaluations:
+            moyenne = sum(evaluations) / len(evaluations)
+        return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
      
 def ajouter_commentaire_client(request,produit_id,selected_rating):
     compte_id = request.session.get('compte')
@@ -274,8 +312,11 @@ def ajouter_commentaire_client(request,produit_id,selected_rating):
         commentaire.save()
         return redirect(f'/details_produit/{produit_id}')
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        client = Client.objects.get(id_email=66)
+        texte_commentaire = request.POST.get('nouveau_commentaire')
+        commentaire = Commentaire(id_produit_id=produit_id, id_client_id=client.id_client, texte_commentaire=texte_commentaire,evaluation=selected_rating)
+        commentaire.save()
+        return redirect(f'/details_produit/{produit_id}')
     
 def ajouter_panier_client(request, id):
     if request.method == 'POST':
@@ -291,8 +332,13 @@ def ajouter_panier_client(request, id):
             panier.save()
             return redirect(f'/details_produit/{id}')
         else:
-            messages.error(request, "La session est invalide vieuller connecter.")
-            return redirect('login')
+            compte = get_object_or_404(Compte, id=66)
+            client = get_object_or_404(Client, id_email=66)
+            panier, created = Panier.objects.get_or_create(id_client=client)
+            panier.produits.add(produit)
+            panier.quantite[str(produit.id_produit)] = quantity
+            panier.save()
+            return redirect(f'/details_produit/{id}')
     else:
         return HttpResponse("Invalid request method")
 
@@ -306,8 +352,11 @@ def suprimer_panier_client(request, id):
         la_panier.produits.remove(produit)
         return redirect(panier)
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        client = Client.objects.get(id_email=66)
+        produit = get_object_or_404(Produit, id_produit=id)
+        la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
+        la_panier.produits.remove(produit)
+        return redirect(panier)
 
 
 def vider_panier(request):
@@ -318,8 +367,10 @@ def vider_panier(request):
         la_panier.produits.clear()
         return redirect(panier)
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        client = Client.objects.get(id_email=66)
+        la_panier, created = Panier.objects.get_or_create(id_client=client.id_client)
+        la_panier.produits.clear()
+        return redirect(panier)
 
 
 def produits_par_categorie(request, nom_categorie):
@@ -348,8 +399,28 @@ def produits_par_categorie(request, nom_categorie):
         
         return render(request, 'interface_client/produits_par_categorie.html', context)
     else:
-        messages.error(request, "La session est invalide vieuller connecter.")
-        return redirect('login')
+        compte = Compte.objects.get(id=66)
+        view_option = request.GET.get('view', 12)
+        categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
+        categories=Categorie.objects.all()
+        produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
+        quarter_1, quarter_2, quarter_3, quarter_4 = calculer_le_quart(produits)
+        client=Client.objects.get(id_email=66)
+        context = {
+            'categorie1': categorie1,
+            'produits': produits,
+            'categories':categories,
+            'nom':nom_categorie,
+            'view_option': view_option,
+            'quarter_1': quarter_1,
+            'quarter_2': quarter_2,
+            'quarter_3': quarter_3,
+            'quarter_4': quarter_4,
+            'compte':compte,
+            'client':client,
+        }
+        
+        return render(request, 'interface_client/produits_par_categorie.html', context)
 
 def paiement(request):
     compte_id = request.session.get('compte')

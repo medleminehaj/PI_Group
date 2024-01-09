@@ -191,7 +191,7 @@
                         <script>
                             function checkUserId() {
                                 // Vérifiez si l'ID du client est égal à 66
-                                {% if request.session.compte == 66 %}
+                                {% if  request.session.compte == 66  and request.session.compte is not None %}
                                     swal({
                                         title: 'Connectez-vous pour effectuer cette action',
                                         icon: 'info',

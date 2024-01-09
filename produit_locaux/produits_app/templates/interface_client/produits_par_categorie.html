@@ -3,16 +3,16 @@
 {% if compte %}
 <div class="shop_sidebar_area">
      <div class="widget catagory mb-50">
-                <h6 class="widget-title mb-30"><b class="majuscules">Catagories</b></h6>
+                <h6 class="widget-title mb-30" style="font-size: 18px; color: white; margin-bottom: 10px; text-transform: uppercase; border-radius: 5px; background-color: #3CB371; padding: 8px;"><b class="majuscules">Catagories</b></h6>
                  <ul>
-                    <li><a href="{% url 'categories' %}"><h6 class="majuscules" style=" text-transform: uppercase;">Tout</h6></a></li>
+                    <li><a href="{% url 'categories' %}"><h6 class="majuscules"style="font-size: 18px; color: white; margin-bottom: 10px; text-transform: uppercase; border-radius: 5px; background-color: #BDB76B; padding: 8px;">Tout</h6></a></li>
                  </ul>
                 {% for categorie in categories %}
                 <div class="categories-menu">
                     <ul>
 
 
-                            <li class="{% if categorie.nom == nom %}active{% endif %}" style=" text-transform: uppercase;"><a href=" /produits_par_categorie/{{categorie.nom}}" ><h6 class="transparent-link majuscules">{{ categorie.nom }}</h6></a>
+                            <li class="{% if categorie.nom == nom %}active{% endif %}" ><a href=" /produits_par_categorie/{{categorie.nom}}" ><h6 style="font-size: 18px; color: white; margin-bottom: 10px; text-transform: uppercase; border-radius: 5px; background-color: #BDB76B; padding: 8px;" >{{ categorie.nom }}</h6></a>
                             </li>
 
 
@@ -76,7 +76,7 @@
                         text-align: center;
                     }
                 </style>
-                <h4 class="h4 majuscules">les {{categorie1.nom}}</h4><br>
+                <h4 class="h4 majuscules"  style="font-size: 24px; color: #333; margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold;">les {{categorie1.nom}}</h4><br>
                 <div class="row">
 
 

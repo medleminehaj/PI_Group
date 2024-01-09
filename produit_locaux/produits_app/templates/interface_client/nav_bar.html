@@ -178,7 +178,7 @@
             {% if user_type == 'client' %}
             <button>Ajouter</button>
             {% endif %}       
-            {% if request.session.compte != 66 %}    
+            {% if request.session.compte != 66  and request.session.compte is not None   %}    
              <ul class="nav-links">
                 <li class="user-account">
                     <div class="user-icon">
@@ -194,12 +194,7 @@
                                             <p>Numéro de téléphone: {{ client.num_tel }}</p>
                                         <p>Adresse: {{ client.adresse }}</p>
                                         <p>État: {{ compte.etat }}</p>
-                                            <!-- Display additional information from client as needed -->
-
-
-                                        <!-- Add other fields as needed -->
                                         <div class="inputs">
-                                            <!-- Additional input fields can be added here if necessary -->
                                         </div>
                                         <button>Gérer votre compte</button>
                                     </form><br>

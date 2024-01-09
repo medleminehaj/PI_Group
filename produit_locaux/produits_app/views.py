@@ -37,6 +37,8 @@ def verify(request):
                 compte = Compte(email=email, password=password, etat=etat)
                 compte.save()
                 request.session['compte'] = compte.id
+                client_pardefaut=66
+                request.session['client'] = client_pardefaut
                 del request.session['email']
                 del request.session['password']
                 del request.session['etat']
@@ -158,8 +160,6 @@ def gerer_voter_compt(request):
         client=Client.objects.get(id_email=compte_id)
         return render(request,"interface_client\gerer_voter_compt.html",{'compte':compte,'client':client})
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -178,12 +178,10 @@ def info_client(request):
 
 def index(request):
     produits = Produit.objects.all().order_by('?')[:20]
-    
     compte_id = request.session.get('compte')
     if compte_id is not None:
         compte = get_object_or_404(Compte, id=compte_id)
         client = get_object_or_404(Client, id_email=compte_id)
-
         return render(request, "interface_client/index.html", {
             "produits": produits,
             'page_actuelle': 'index',
@@ -191,8 +189,6 @@ def index(request):
             'client': client,
         })
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -230,8 +226,6 @@ def categories(request):
         }
         return render(request, 'interface_client/categorie.html', context)
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -250,8 +244,6 @@ def panier(request):
             somme += item['produit'].prix * int(item['quantity'])
         return render(request, "interface_client/panier.html", {'produits': produits, 'panier_items': panier_items, 'somme': somme,'compte':compte,'page_actuelle' : 'panier','client':client})
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -268,7 +260,6 @@ def details_produit(request, id):
         evaluations = [com.evaluation for com in commentaires]
         if evaluations:
             moyenne = sum(evaluations) / len(evaluations)
-
         return render(request, "interface_client/details_produit.html", {'produit': produit,'commentaires':commentaires,'moyenne':moyenne,'compte':compte,'client':client})
     else:
         messages.error(request, "La session est invalide vieuller connecter.")
@@ -283,8 +274,6 @@ def ajouter_commentaire_client(request,produit_id,selected_rating):
         commentaire.save()
         return redirect(f'/details_produit/{produit_id}')
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
     
@@ -302,8 +291,6 @@ def ajouter_panier_client(request, id):
             panier.save()
             return redirect(f'/details_produit/{id}')
         else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
             messages.error(request, "La session est invalide vieuller connecter.")
             return redirect('login')
     else:
@@ -319,8 +306,6 @@ def suprimer_panier_client(request, id):
         la_panier.produits.remove(produit)
         return redirect(panier)
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -333,8 +318,6 @@ def vider_panier(request):
         la_panier.produits.clear()
         return redirect(panier)
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -343,7 +326,7 @@ def produits_par_categorie(request, nom_categorie):
     compte_id = request.session.get('compte')
     if compte_id is not None:
         compte = Compte.objects.get(id=compte_id)
-        view_option = request.GET.get('view', quarter_1)
+        view_option = request.GET.get('view', 12)
         categorie1 = get_object_or_404(Categorie, nom=nom_categorie)
         categories=Categorie.objects.all()
         produits = Produit.objects.filter(categorie=categorie1)[:int(view_option)]
@@ -365,8 +348,6 @@ def produits_par_categorie(request, nom_categorie):
         
         return render(request, 'interface_client/produits_par_categorie.html', context)
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
@@ -421,8 +402,6 @@ def details_historique(request,id):
                 break
         return render(request, 'interface_client/details_historique.html', {'produits': produits_de_commande,'compte':compte})
     else:
-        # Gérer le cas où le compte_id n'est pas présent dans la session
-        # Vous pouvez rediriger l'utilisateur vers la page de connexion par exemple
         messages.error(request, "La session est invalide veiuller connecter.")
         return redirect('login')
     
@@ -433,7 +412,6 @@ def vider_historique(request):
             compte = Compte.objects.get(id=compte_id)
             client = Client.objects.get(id_email=compte)
             CommandeProduit.objects.filter(id_client=client).delete()
-            
         except (Compte.DoesNotExist, Client.DoesNotExist) as e:
             print(f"Erreur: {e}")
     else:
@@ -507,8 +485,6 @@ def suprimer_client(request,id_client):
 
 # ==========================================end admin client==========================================
 
-
-
 # =======================Admin Fournisseur===============================================
 
 def affiche_fournisseur(request):
@@ -526,19 +502,15 @@ def ajouter_fournisseur(request):
         mot_de_passe = request.POST.get('mot_de_passe')
         etat = 'fournisseur'
         compte_existe = Compte.objects.filter(email=email)
-
         if not compte_existe.exists():
             compte = Compte(email=email, password=mot_de_passe, etat=etat)
             compte.save()
-
             fournisseur = Fournisseur(id_email=compte, nom_enterprise=Nom, num_tel=num_tel, adresse=adresse, description=description)
             fournisseur.save()
-
             return redirect('affiche_fournisseur')
         else:
             messages.error(request, "Le compte déjà existe")
             return redirect('ajouter_fournisseur')
-
     return render(request, "interface_admin/Admin_Fournisseur/fournisseur_ajout.html")
 
 
@@ -563,11 +535,6 @@ def supprimer_fournisseur(request,id_fournisseur):
     return HttpResponse("erreur")
 
 # ==========================================end admin fournisseur==========================================
-
-
-
-
-
 
 # =======================Admin categorie===============================================
 
@@ -646,8 +613,6 @@ def modifier_produit(request, id_produit):
     categories = Categorie.objects.all()
     return render(request, 'interface_admin/Admin_Produits/produits_modification.html', {'produit': produit,'fournisseurs':fournisseurs,'categories':categories})
 
-
-
 def suprimer_produit(request,id_produit):
     objet = get_object_or_404(Produit, id_produit=id_produit)
     if request.method == 'GET':
@@ -699,7 +664,6 @@ def modifier_compte(request, id_compte):
         return redirect('affiche_compte')
     return render(request, 'interface_admin/Admin_compte/compte_modification.html', {'compte': compte})
 
-
 def supprimer_compte(request,id_compte):
     objet = get_object_or_404(Compte, id=id_compte)
     if request.method == 'GET':
@@ -708,7 +672,6 @@ def supprimer_compte(request,id_compte):
     return HttpResponse("erreur")
 
 # ==========================================end admin compte==========================================
-
 
 # =======================Admin panier===============================================
 
@@ -750,8 +713,6 @@ def modifier_panier(request, id_panier):
     produits = Produit.objects.all()
     return render(request, 'interface_admin/Admin_panier/panier_modification.html', {'panier': panier,'clients':clients,'produits':produits})
 
-
-
 def suprimer_panier(request,id_panier):
     objet = get_object_or_404(Panier, id_panier=id_panier)
     if request.method == 'GET':
@@ -760,7 +721,6 @@ def suprimer_panier(request,id_panier):
     return HttpResponse("erreur")
 
 # ==========================================end admin panier==========================================
-
 
 # =======================Admin Commentaire===============================================
 
@@ -794,8 +754,6 @@ def modifier_commentaire(request, id_commentaire):
     clients = Client.objects.all()
     return render(request, 'interface_admin/Admin_commentaire/commentaire_modification.html', {'commentaire':commentaire,'produits': produits,'clients':clients})
 
-
-
 def supprimer_commentaire(request,id_commentaire):
     objet = get_object_or_404(Commentaire, id_commentaire=id_commentaire)
     if request.method == 'GET':
@@ -804,7 +762,6 @@ def supprimer_commentaire(request,id_commentaire):
     return HttpResponse("erreur")
 
 # ==========================================end admin Commentaire==========================================
-
 
 # =======================Admin commandeProduit===============================================
 
@@ -834,8 +791,6 @@ def modifier_commandeProduit(request, id_commande):
     clients = Client.objects.all
     return render(request, 'interface_admin/Admin_commande_produit/commandeProduit_modification.html', {'clients': clients,'commande':commande})
 
-
-
 def suprimer_commandeProduit(request,id_commande):
     objet = get_object_or_404(CommandeProduit, id_commande=id_commande)
     if request.method == 'GET':
@@ -844,4 +799,3 @@ def suprimer_commandeProduit(request,id_commande):
     return HttpResponse("erreur")
 
 # ==========================================end admin commandeProduit==========================================
-

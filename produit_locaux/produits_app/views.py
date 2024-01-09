@@ -37,6 +37,8 @@ def verify(request):
                 compte = Compte(email=email, password=password, etat=etat)
                 compte.save()
                 request.session['compte'] = compte.id
+                client_pardefaut=66
+                request.session['client'] = client_pardefaut
                 del request.session['email']
                 del request.session['password']
                 del request.session['etat']
@@ -115,7 +117,7 @@ def login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         compte_existe = Compte.objects.filter(email=email, password=password)
-        if compte_existe:
+        if compte_existe.id != 66:
             compte = Compte.objects.get(email=email)
             request.session['compte'] = compte.id
             if compte.etat == 'admin':

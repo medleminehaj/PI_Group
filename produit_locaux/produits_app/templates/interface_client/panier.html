@@ -91,7 +91,26 @@
                                 <li><span>total:</span> <span id="totalAmount">{{ somme }} MRO</span></li>
                             </ul>
                             <div class="cart-btn mt-100">
-                                <a href="{% url 'paiement' %}" class="btn amado-btn w-100">paiement</a>
+                                
+                                <div class="cart-btn mt-100">
+                                    <a href="{% url 'paiement' %}" class="btn amado-btn w-100" onclick="checkUserId()">Paiement</a>
+
+                                    <script>
+                                        function checkUserId() {
+                                            // Vérifiez si l'ID du client est égal à 66
+                                            {% if compte.id == 66 %}
+                                                swal({
+                                                    title: 'Connectez-vous pour effectuer un paiement',
+                                                    icon: 'info',
+                                                });
+                                                // Empêchez le lien de paiement de se rendre à la page
+                                                event.preventDefault();
+                                            {% endif %}
+                                        }
+                                    </script>
+                                                           
+                                                        </div>
+                                
                             </div>
                             <div class="cart-btn mt-100">
                                 <a onclick="confirmDeleteAll()" href="#"

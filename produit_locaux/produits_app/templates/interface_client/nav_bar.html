@@ -186,7 +186,7 @@
                                         <div class="head">
                                                 <img class="img_compt" id="avatar-img" src="{{compte.image.url}}" alt="vatar" width="50" height="60">
                                         </div>
-                                            <p>Bonjour  {{ client.nom }}</p>
+                                            <p>{{ client.nom }}</p>
                                             <p>Numéro de téléphone: {{ client.num_tel }}</p>
                                         <p>Adresse: {{ client.adresse }}</p>
                                         <p>État: {{ compte.etat }}</p>
@@ -198,7 +198,7 @@
                                             <!-- Additional input fields can be added here if necessary -->
                                         </div>
                                         <button>Gérer votre compte</button>
-                                    </form>
+                                    </form><br>
                                     <div class="form-footer">
                                         <a href="{% url 'logout_view' %}">se deconecter</a> 
                                     </div>
@@ -239,7 +239,7 @@
             </div>
             <nav class="amado-nav">
                 <ul>
-                    <li class="{% if page_actuelle == 'index' %}active{% endif %}"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="{% if page_actuelle == 'index' %}active{% endif %}"><a href="{% url 'index' %}">Accueil</a></li>
                     <li class="{% if page_actuelle == 'categorie' %}active{% endif %}"><a href="{% url 'categories' %}">Categories</a></li>
                     <li class="{% if page_actuelle == 'panier' %}active{% endif %}"><a href="{% url 'panier' %}">Panier</a></li>
                     <li class="{% if page_actuelle == 'historique' %}active{% endif %}"><a href="{% url 'historique' %}">Historique</a></li>
@@ -269,13 +269,13 @@
                                 <div class="collapse navbar-collapse" id="footerNavContent">
                                     <ul class="navbar-nav ml-auto">
                                         <li class="{% if page_actuelle == 'index' %}nav-item active {% else %} nav-item {% endif %}">
-                                            <a class="nav-link" href="{% url 'index' %}">Home</a>
+                                            <a class="nav-link" href="{% url 'index' %}">Accueil</a>
                                         </li>
                                         <li class="{% if page_actuelle == 'categorie' %}nav-item active{% else %}nav-item{% endif %}">
                                             <a class="nav-link" href="{% url 'categories' %}">Categories</a>
                                         </li>
                                         <li class="{% if page_actuelle == 'panier' %}nav-item active{% else %}nav-item{% endif %}">
-                                            <a class="nav-link" href="{% url 'panier' %}">Pagnier</a>
+                                            <a class="nav-link" href="{% url 'panier' %}">Panier</a>
                                         </li>
                                         <li class="{% if page_actuelle == 'historique' %}nav-item active{% else %}nav-item{% endif %}">
                                             <a class="nav-link" href="{% url 'historique' %}">Historique</a>

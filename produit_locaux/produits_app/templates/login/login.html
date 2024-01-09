@@ -13,8 +13,7 @@
 <body>
     <div class="wrapper">
         <div class="title-text">
-          <div class="title login">Login Form</div>
-          <div class="title signup">Signup Form</div>
+          <h2 class="" style="color: black; text-align: center;">Formulaire de connexion</h2><br><br>
         </div>
         <div class="form-container">  
             <div class="slider-tab"></div>
@@ -29,16 +28,16 @@
                       {% endfor %}
               {% endif %}
               <div class="field">
-                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="email" name="email" placeholder="Email" required>
               </div>
               <div class="field">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Mot de passe" required>
               </div>
               <div class="field btn">
                 <div class="btn-layer"></div>
-                <input type="submit" value="Login">
+                <input type="submit" value="Connexion">
               </div>
-              <div class="signup-link">Not a member? <a href="{% url 'creercompte' %}">Signup now</a></div>
+              <div class="signup-link">Pas encore membre ? <a href="{% url 'creercompte' %}">Inscrivez-vous maintenant</a></div>
               <div class="signup-link">Mot de pass oublier? <a href="{% url 'request_password_reset' %}">Reinisialiser</a></div>
             </form>
           </div>

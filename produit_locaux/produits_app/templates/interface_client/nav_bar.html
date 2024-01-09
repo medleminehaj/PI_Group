@@ -12,6 +12,8 @@
     <link rel="icon" href="{% static 'images/logo_supnum.png' %}">
     <link rel="stylesheet" href="{% static 'css/interface_client/core-style_m.css' %}">
     <link rel="stylesheet" href="{% static 'css/interface_client/ms.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         .user-account {
             position: relative;
@@ -175,7 +177,9 @@
             <a href="{% url 'index'%}" class="logo">Produits Locaux</a>
             {% if user_type == 'client' %}
             <button>Ajouter</button>
-            {% endif %}            <ul class="nav-links">
+            {% endif %}       
+            {% if request.session.compte != 66 %}    
+             <ul class="nav-links">
                 <li class="user-account">
                     <div class="user-icon">
                         <img src="{{compte.image.url}}" alt="User Icon" id="userImage" onclick="toggleModal()" width="40" height="40">
@@ -206,14 +210,34 @@
                                 </div>
                         
                             </div>
-                            
-                            <!-- Add more user information as needed -->
+                           
                         </div>
                     </div>
                 </li>
-                <li>
-                    
+            </ul>
+                {% else %}
+                <ul class="nav-links">
+                <li class="user-account">
+                    <div class="user-icon">
+                        <img src="{{compte.image.url}}" alt="User Icon" id="userImage" onclick="toggleModal()" width="50" height="50">
+                        <div class="user-info" id="userInfo">
+                            <div class="body">
+                                <div class="container1">
+                                        <div class="head">
+                                                <img class="img_compt" id="avatar-img" src="{{compte.image.url}}" alt="vatar" width="150" height="160">
+                                                <p>Veuillez vous connecter:</p>
+                                    <div class="form-footer">
+                                        <a href="{% url 'login' %}">Se connecter</a> 
+                                    </div>
+                            
+                                </div>
+                        
+                            </div>
+                           
+                        </div>
+                    </div>
                 </li>
+            {% endif %}
             </ul>
         </div>
     </nav>

@@ -5,14 +5,14 @@
      <div class="widget catagory mb-50">
                 <h6 class="widget-title mb-30"><b class="majuscules">Catagories</b></h6>
                  <ul>
-                    <li><a href="{% url 'categories' %}"><h6 class="majuscules">all</h6></a></li><br>
+                    <li><a href="{% url 'categories' %}"><h6 class="majuscules" style=" text-transform: uppercase;">Tout</h6></a></li>
                  </ul>
                 {% for categorie in categories %}
                 <div class="categories-menu">
                     <ul>
 
 
-                            <li class="{% if categorie.nom == nom %}active{% endif %}"><a href=" /produits_par_categorie/{{categorie.nom}}" ><h6 class="transparent-link majuscules">{{ categorie.nom }}</h6></a>
+                            <li class="{% if categorie.nom == nom %}active{% endif %}" style=" text-transform: uppercase;"><a href=" /produits_par_categorie/{{categorie.nom}}" ><h6 class="transparent-link majuscules">{{ categorie.nom }}</h6></a>
                             </li>
 
 
@@ -97,7 +97,7 @@
                                             <div class="product-meta-data">
                                                <div class="line"></div>
                                                     <h4>{{ produit.nom }}</h4>
-                                                    <p><b>prix: </b>{{ produit.prix }} MRO</p>
+                                                    <p><b>prix par Kg: </b>{{ produit.prix }} MRO</p>
                                                     <p><b>date: </b>{{ produit.date_publication }}</p>
 
                                             </div>

@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 
 class Compte(models.Model):
     id = models.AutoField(primary_key=True)
@@ -61,8 +64,10 @@ class Commentaire(models.Model):
     texte_commentaire = models.TextField()
     evaluation = models.FloatField()
 
+
 class Panier(models.Model):
     id_panier = models.AutoField(primary_key=True)
     produits = models.ManyToManyField(Produit)
     quantite = models.JSONField(default=dict)
     id_client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    date_expiration = models.DateTimeField(null=True, blank=True)

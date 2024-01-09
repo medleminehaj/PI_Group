@@ -8,6 +8,7 @@ from django.conf import settings
 from random import randint
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import check_password, make_password
+from datetime import timedelta
 
 # =======================login , logout and creercompte===============================================
 
@@ -38,6 +39,8 @@ def verify(request):
                 compte = Compte(email=email, password=password, etat=etat)
                 compte.save()
                 request.session['compte'] = compte.id
+                client_pardefaut=66
+                request.session['client'] = client_pardefaut
                 del request.session['email']
                 del request.session['password']
                 del request.session['etat']
@@ -80,7 +83,7 @@ def request_password_reset(request):
 def verify_password_reset(request):
     if request.method == 'POST':
         entered_code = request.POST.get('code')
-        expected_code = request.POST.get('reset_code')
+        expected_code = request.session.get('reset_code')
         if entered_code == expected_code:
             return redirect('reset_password')
         else:
@@ -111,7 +114,7 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        compte_existe = Compte.objects.filter(email=email).first()
+        compte_existe = Compte.objects.get(email=email)
         if compte_existe and check_password(password, compte_existe.password):
             request.session['compte'] = compte_existe.id
             if compte_existe.etat == 'admin':
@@ -175,6 +178,7 @@ def info_client(request):
     return render(request,"interface_client/info_client.html")
 
 def index(request):
+    supprimer_paniers_expires()
     produits = Produit.objects.all().order_by('?')[:20]
     compte_id = request.session.get('compte')
     if compte_id is not None:
@@ -206,7 +210,7 @@ def categories(request):
     if compte_id is not None:
         compte = Compte.objects.get(id=compte_id)
         view_option = request.GET.get('view', 12)  # Valeur par défaut '12' si le paramètre n'est pas présent
-        derniers_produits = Produit.objects.order_by('date_publication')[:int(view_option)]
+        derniers_produits = Produit.objects.order_by('?')[:int(view_option)]
         quart_1, quart_2, quart_3, quart_4 = calculer_le_quart(derniers_produits)
         categorie = Categorie.objects.all()
         client=Client.objects.get(id_email=compte_id)
@@ -227,12 +231,19 @@ def categories(request):
         messages.error(request, "La session est invalide vieuller connecter.")
         return redirect('login')
 
+def supprimer_paniers_expires():
+    paniers_expires = Panier.objects.filter(date_expiration__lt=timezone.now())
+    paniers_expires.delete()
+
 def panier(request):
     compte_id = request.session.get('compte')
     if compte_id is not None:
         compte = Compte.objects.get(id=compte_id)
         client=Client.objects.get(id_email=compte)
         la_panier, created = Panier.objects.get_or_create(id_client=client)
+        if created or la_panier.date_expiration is None:
+            la_panier.date_expiration = timezone.now() + timezone.timedelta(days=30)
+        la_panier.save()
         produits = la_panier.produits.all()
         client=Client.objects.get(id_email=compte_id)
         panier_items = [{'produit': produit, 'quantity': la_panier.quantite.get(str(produit.id_produit), 0)} for produit in
@@ -445,7 +456,6 @@ def ajouter_client(request):
         prenom = request.POST.get('prenom')
         num_tel = request.POST.get('num_tel')
         adresse = request.POST.get('adresse')
-        historique = request.POST.get('historique')
         compte_existe = Compte.objects.filter(email=email)
         if not compte_existe.exists():
             compte = Compte(email=email, password=password, etat="client")
@@ -649,7 +659,6 @@ def modifier_compte(request, id_compte):
     compte = get_object_or_404(Compte , id=id_compte)
     if request.method == 'POST':
         compte.email = request.POST.get('email')
-        compte.password = make_password(request.POST.get('password'))
         compte.etat = request.POST.get('etat')
         if 'image' in request.FILES:
             compte.image = request.FILES['image']
